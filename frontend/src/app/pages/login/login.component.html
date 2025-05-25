@@ -1,14 +1,56 @@
-<div class="login-container">
-  <h2>Connexion</h2>
-  <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-    <div>
-      <label>Email</label>
-      <input type="email" formControlName="email" required />
+<div class="container mt-5">
+  <div class="card p-4 shadow-sm mx-auto" style="max-width: 400px;">
+    <h2 class="text-center mb-4">Connexion</h2>
+
+    <!-- Message global -->
+    <div *ngIf="message" class="alert" [ngClass]="{
+      'alert-success': messageType === 'success',
+      'alert-danger': messageType === 'error'
+    }">
+      {{ message }}
     </div>
-    <div>
-      <label>Mot de passe</label>
-      <input type="password" formControlName="password" required />
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
+      <div class="mb-3">
+        <label for="email" class="form-label">Adresse email</label>
+        <input
+          type="email"
+          class="form-control"
+          id="email"
+          formControlName="email"
+          placeholder="ex: utilisateur@exemple.com"
+        />
+        <div *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched" class="text-danger">
+          Email invalide.
+        </div>
+      </div>
+
+      <div class="mb-3">
+        <label for="password" class="form-label">Mot de passe</label>
+        <input
+          type="password"
+          class="form-control"
+          id="password"
+          formControlName="password"
+          placeholder="••••••••"
+        />
+        <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger">
+          Mot de passe requis.
+        </div>
+      </div>
+
+      <button
+        type="submit"
+        class="btn btn-primary w-100"
+        [disabled]="loginForm.invalid"
+      >
+        Se connecter
+      </button>
+    </form>
+
+    <div class="text-center mt-3">
+      <span>Pas encore de compte ? </span>
+      <a routerLink="/register">Créer un compte</a>
     </div>
-    <button type="submit" [disabled]="loginForm.invalid">Se connecter</button>
-  </form>
+  </div>
 </div>
