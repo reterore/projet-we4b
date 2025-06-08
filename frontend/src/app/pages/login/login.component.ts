@@ -27,7 +27,7 @@ export class LoginComponent {
           this.auth.setToken(res.token);
           this.message = 'Connexion réussie. Redirection...';
           this.messageType = 'success';
-          setTimeout(() => this.router.navigate(['/dashboard']), 1000);
+          setTimeout(() => this.router.navigate(['/dashboard']), 500);
         },
         error: err => {
           this.message = err.error?.error || 'Email ou mot de passe incorrect';
