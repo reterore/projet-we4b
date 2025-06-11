@@ -1,0 +1,10 @@
+<h2>Liste des cours</h2>
+<button (click)="addCourse()">➕ Ajouter un cours</button>
+
+<ul>
+  <li *ngFor="let course of courses">
+    <strong>{{ course.title }}</strong> - {{ course.description }}
+    <button (click)="editCourse(course._id!)">✏️ Modifier</button>
+    <button (click)="deleteCourse(course._id!)">🗑️ Supprimer</button>
+  </li>
+</ul>

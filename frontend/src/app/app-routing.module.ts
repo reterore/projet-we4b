@@ -3,15 +3,21 @@ import { RouterModule, Routes } from '@angular/router';
 import { LoginComponent } from './pages/login/login.component';
 import { RegisterComponent } from './pages/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
+import {CoursesComponent} from "./pages/courses/courses.component";
+import {CourseFormComponent} from "./pages/course-form/course-form.component";
+import {AuthGuard} from "./guards/auth.guard";
 
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
-  { path: 'dashboard', component: DashboardComponent },
-
+  { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: '**', redirectTo: 'login' } // route catch-all pour 404
+  { path: '**', redirectTo: 'login' } ,// route catch-all pour 404
+  { path: 'courses', component: CoursesComponent },
+  { path: 'courses/new', component: CourseFormComponent },
+  { path: 'courses/edit/:id', component: CourseFormComponent },
+
 ];
 
 @NgModule({

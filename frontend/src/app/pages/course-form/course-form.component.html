@@ -1,0 +1,14 @@
+<h2>{{ isEditMode ? 'Modifier' : 'Ajouter' }} un cours</h2>
+
+<form (ngSubmit)="saveCourse()">
+  <label>Intitulé :</label>
+  <input [(ngModel)]="course.title" name="title" required>
+
+  <label>Description :</label>
+  <input [(ngModel)]="course.description" name="description">
+
+  <label>ID du professeur :</label>
+  <input [(ngModel)]="course.teacherId" name="teacherId" required>
+
+  <button type="submit">💾 Enregistrer</button>
+</form>
