@@ -17,6 +17,10 @@ app.use('/api/auth', authRoutes);
 const courseRoutes = require('./routes/courseRoutes');
 app.use('/api/courses', courseRoutes);
 
+const userRoutes = require('./routes/userRoutes');
+app.use('/api/users', userRoutes);
+
+
 
 app.get('/api/test', (req, res) => res.json({ message: 'API OK' }));
 app.listen(3000, () => console.log('Serveur sur http://localhost:3000'));

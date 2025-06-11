@@ -15,16 +15,22 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/register`, data);
   }
 
-  setToken(token: string) {
+  setSession(token: string, user: any) {
     localStorage.setItem('token', token);
+    localStorage.setItem('userId', user._id);
   }
 
   getToken(): string | null {
     return localStorage.getItem('token');
   }
 
+  getUserId(): string | null {
+    return localStorage.getItem('userId');
+  }
+
   logout() {
     localStorage.removeItem('token');
+    localStorage.removeItem('userId');
   }
 
   isLoggedIn(): boolean {

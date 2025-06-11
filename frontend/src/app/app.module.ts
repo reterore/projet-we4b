@@ -10,6 +10,7 @@ import { RegisterComponent } from './pages/register/register.component';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CoursesComponent } from './pages/courses/courses.component';
 import { CourseFormComponent } from './pages/course-form/course-form.component';
+import { SelectCoursesComponent } from './pages/select-courses/select-courses.component';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { CourseFormComponent } from './pages/course-form/course-form.component';
     RegisterComponent,
     DashboardComponent,
     CoursesComponent,
-    CourseFormComponent
+    CourseFormComponent,
+    SelectCoursesComponent
   ],
   imports: [
     BrowserModule,

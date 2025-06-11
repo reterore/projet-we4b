@@ -20,7 +20,14 @@ router.post('/login', async (req, res) => {
         { expiresIn: '1d' }
     );
 
-    res.json({ token, user: { username: user.username, role: user.role } });
+    res.json({
+        token,
+        user: {
+            _id: user._id,
+            username: user.username,
+            role: user.role
+        }
+    });
 });
 
 router.post('/register', async (req, res) => {

@@ -24,7 +24,7 @@ export class LoginComponent {
     if (this.loginForm.valid) {
       this.auth.login(this.loginForm.value).subscribe({
         next: res => {
-          this.auth.setToken(res.token);
+          this.auth.setSession(res.token, res.user);
           this.message = 'Connexion réussie. Redirection...';
           this.messageType = 'success';
           setTimeout(() => this.router.navigate(['/dashboard']), 500);
@@ -36,4 +36,5 @@ export class LoginComponent {
       });
     }
   }
+
 }

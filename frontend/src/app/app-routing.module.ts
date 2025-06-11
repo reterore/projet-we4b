@@ -6,17 +6,21 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import {CoursesComponent} from "./pages/courses/courses.component";
 import {CourseFormComponent} from "./pages/course-form/course-form.component";
 import {AuthGuard} from "./guards/auth.guard";
+import {SelectCoursesComponent} from "./pages/select-courses/select-courses.component";
 
 
 const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
+  { path: 'select-courses', component: SelectCoursesComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: '**', redirectTo: 'login' } ,// route catch-all pour 404
   { path: 'courses', component: CoursesComponent },
   { path: 'courses/new', component: CourseFormComponent },
-  { path: 'courses/edit/:id', component: CourseFormComponent },
+  { path: 'courses/edit/:id', component: CourseFormComponent }
+
+
 
 ];
 
