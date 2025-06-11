@@ -1,18 +1,24 @@
 import { Component, OnInit } from '@angular/core';
-import { Course, CourseService } from 'src/app/services/course.service';
-import { HttpClient } from '@angular/common/http';
+import { CourseService, Course } from '../../services/course.service';
+import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   selector: 'app-select-courses',
   templateUrl: './select-courses.component.html',
+  styleUrls: ['./select-courses.component.css']
 })
 export class SelectCoursesComponent implements OnInit {
   courses: Course[] = [];
-  selected: string[] = [];
-  userId = 'ID_DU_USER_CONNECTE'; // À remplacer dynamiquement si vous utilisez une auth
+  selected: Set<string> = new Set();
 
-  constructor(private courseService: CourseService, private http: HttpClient, private router: Router) {}
+  constructor(
+    private courseService: CourseService,
+    private auth: AuthService,
+    private http: HttpClient,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.courseService.getCourses().subscribe(data => {
@@ -20,19 +26,28 @@ export class SelectCoursesComponent implements OnInit {
     });
   }
 
-  toggleSelection(courseId: string): void {
-    if (this.selected.includes(courseId)) {
-      this.selected = this.selected.filter(id => id !== courseId);
+  toggleSelection(courseId: string) {
+    if (this.selected.has(courseId)) {
+      this.selected.delete(courseId);
     } else {
-      this.selected.push(courseId);
+      this.selected.add(courseId);
     }
   }
 
-  saveCourses(): void {
-    this.http.put(`http://localhost:3000/api/users/${this.userId}/select-courses`, {
-      courseIds: this.selected
-    }).subscribe(() => {
-      this.router.navigate(['/dashboard']);
+  saveSelection(): void {
+    const userId = this.auth.getUserId();
+    if (!userId) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    this.http.put(`http://localhost:3000/api/users/${userId}/select-courses`, {
+      selectedCourses: Array.from(this.selected)
+    }).subscribe({
+      next: () => this.router.navigate(['/dashboard']),
+      error: err => console.error('Erreur lors de la sauvegarde', err)
     });
   }
+
+
 }
