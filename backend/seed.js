@@ -9,30 +9,41 @@ mongoose.connect('mongodb://localhost:27017/we4b')
 
 (async () => {
     try {
-        // Création d’un admin
-        const passwordHash = await bcrypt.hash('admin123', 10); // mot de passe sécurisé
-        const admin = new User({
-            surname: 'Admin',
-            name: 'Principal',
-            email: 'admin@we4b.com',
-            passwordHash,
-            role: 'admin'
-        });
+        // Vérifier si un admin existe déjà
+        const existingAdmin = await User.findOne({ email: 'admin@we4b.com' });
+        let admin;
 
-        const savedAdmin = await admin.save();
-        console.log('👑 Admin inséré avec succès :', savedAdmin.email);
+        if (existingAdmin) {
+            console.log('👑 Admin déjà existant :', existingAdmin.email);
+            admin = existingAdmin;
+        } else {
+            const passwordHash = await bcrypt.hash('admin123', 10);
+            admin = new User({
+                surname: 'Admin',
+                name: 'Principal',
+                email: 'admin@we4b.com',
+                passwordHash,
+                role: 'admin'
+            });
+            const savedAdmin = await admin.save();
+            console.log('👑 Nouvel admin inséré :', savedAdmin.email);
+        }
 
-        // Création de cours avec l’admin comme prof par défaut
-        const courses = [
-            { title: 'Mathématiques', description: 'Algebra, géométrie...', teacherId: savedAdmin._id },
-            { title: 'Physique', description: 'Mécanique, thermodynamique...', teacherId: savedAdmin._id },
-            { title: 'Informatique', description: 'Programmation, réseaux...', teacherId: savedAdmin._id },
-            { title: 'Anglais', description: 'Grammaire et vocabulaire', teacherId: savedAdmin._id },
-            { title: 'Philosophie', description: 'Philosophie morale et politique', teacherId: savedAdmin._id },
-        ];
-
-        await Course.insertMany(courses);
-        console.log('📚 Cours insérés avec succès');
+        // Vérifier si les cours existent déjà
+        const courseCount = await Course.countDocuments();
+        if (courseCount > 0) {
+            console.log('📚 Les cours existent déjà. Aucun ajout effectué.');
+        } else {
+            const courses = [
+                { title: 'Mathématiques', description: 'Algebra, géométrie...', teacherId: admin._id },
+                { title: 'Physique', description: 'Mécanique, thermodynamique...', teacherId: admin._id },
+                { title: 'Informatique', description: 'Programmation, réseaux...', teacherId: admin._id },
+                { title: 'Anglais', description: 'Grammaire et vocabulaire', teacherId: admin._id },
+                { title: 'Philosophie', description: 'Philosophie morale et politique', teacherId: admin._id },
+            ];
+            await Course.insertMany(courses);
+            console.log('📚 Cours insérés avec succès');
+        }
 
     } catch (err) {
         console.error('❌ Erreur lors de l\'insertion :', err);
