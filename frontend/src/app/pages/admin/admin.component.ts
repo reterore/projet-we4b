@@ -40,7 +40,7 @@ export class AdminComponent implements OnInit {
         this.users = users;
         this.userError = false;
       },
-      error: err => {
+      error: (err: any) => {
         console.error('Erreur lors du chargement des utilisateurs :', err);
         this.userError = true;
         this.users = [];
