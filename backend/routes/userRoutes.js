@@ -63,7 +63,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ PUT : mise à jour des cours sélectionnés
+// PUT : mise à jour des cours sélectionnés
 router.put('/:id/select-courses', async (req, res) => {
     try {
         const { selectedCourses } = req.body;
@@ -78,5 +78,28 @@ router.put('/:id/select-courses', async (req, res) => {
         res.status(500).json({ error: 'Erreur lors de la mise à jour des cours sélectionnés.' });
     }
 });
+
+// PUT /api/users/:id → mise à jour des infos du user
+router.put('/:id', async (req, res) => {
+    try {
+        const { name, surname, email } = req.body;
+
+        const updatedUser = await User.findByIdAndUpdate(
+            req.params.id,
+            { name, surname, email },
+            { new: true }
+        );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+        }
+
+        res.json(updatedUser);
+    } catch (err) {
+        console.error('Erreur update user:', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
 
 module.exports = router;

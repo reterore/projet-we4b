@@ -10,6 +10,8 @@ import { Router } from '@angular/router';
 })
 export class ProfileComponent implements OnInit {
   user: any;
+  editMode: boolean = false;
+  editedUser: any = {};
 
   constructor(
     private auth: AuthService,
@@ -25,11 +27,28 @@ export class ProfileComponent implements OnInit {
     }
 
     this.http.get(`http://localhost:3000/api/users/${userId}`).subscribe({
-      next: user => this.user = user,
+      next: user => {
+        this.user = user;
+        this.editedUser = { ...user };
+      },
       error: err => {
         console.error('Erreur profil :', err);
         this.router.navigate(['/login']);
       }
     });
   }
+  saveChanges(): void {
+    const userId = this.auth.getUserId();
+    this.http.put(`http://localhost:3000/api/users/${userId}`, this.editedUser).subscribe({
+      next: updatedUser => {
+        this.user = updatedUser;
+        this.editMode = false;
+      },
+      error: err => {
+        console.error('Erreur lors de la mise à jour', err);
+        alert("Erreur lors de l'enregistrement.");
+      }
+    });
+  }
+
 }
