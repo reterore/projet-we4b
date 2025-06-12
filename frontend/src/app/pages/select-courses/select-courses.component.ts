@@ -21,10 +21,30 @@ export class SelectCoursesComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    this.courseService.getCourses().subscribe(data => {
-      this.courses = data;
+    const userId = this.auth.getUserId();
+
+    if (!userId) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    // 1. Récupérer l'utilisateur pour ses cours sélectionnés
+    this.http.get<any>(`http://localhost:3000/api/users/${userId}`).subscribe({
+      next: user => {
+        this.selected = new Set(user.selectedCourses); // 2. Initialiser les cases cochées
+
+        // 3. Charger tous les cours ensuite
+        this.courseService.getCourses().subscribe(data => {
+          this.courses = data;
+        });
+      },
+      error: err => {
+        console.error('Erreur récupération utilisateur', err);
+        this.router.navigate(['/login']);
+      }
     });
   }
+
 
   toggleSelection(courseId: string) {
     if (this.selected.has(courseId)) {
