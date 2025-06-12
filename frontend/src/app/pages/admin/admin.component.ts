@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService } from 'src/app/services/user.service';
 import { CourseService, Course } from 'src/app/services/course.service';
+import { Router } from '@angular/router';
+import {AuthService} from "../../services/auth.service";
 
 @Component({
   selector: 'app-admin',
@@ -17,7 +19,9 @@ export class AdminComponent implements OnInit {
 
   constructor(
     private userService: UserService,
-    private courseService: CourseService
+    private courseService: CourseService,
+    private auth: AuthService,
+    private router: Router
   ) {}
 
   ngOnInit(): void {
@@ -56,5 +60,10 @@ export class AdminComponent implements OnInit {
         this.courses = [];
       }
     });
+  }
+
+  logout() {
+    this.auth.logout(); // ou authService.logout();
+    this.router.navigate(['/login']);
   }
 }

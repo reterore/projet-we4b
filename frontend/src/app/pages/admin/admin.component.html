@@ -1,3 +1,15 @@
+<!-- Barre de navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="container-fluid">
+    <span class="navbar-brand">🎓 Admin Panel</span>
+
+    <div class="d-flex ms-auto">
+      <button class="btn btn-outline-light" (click)="logout()">Déconnexion</button>
+    </div>
+  </div>
+</nav>
+
+<!-- Contenu principal -->
 <div class="container py-4">
   <h2 class="mb-4">Interface d'administration</h2>
 
@@ -13,71 +25,59 @@
 
   <!-- Liste des utilisateurs -->
   <div *ngIf="currentTab === 'users'">
-    <h4>Liste des utilisateurs</h4>
+    <h4 class="mb-3">Liste des utilisateurs</h4>
 
-    <!-- Message d'erreur -->
-    <div *ngIf="userError" class="alert alert-danger mt-3">
-      Erreur lors du chargement des utilisateurs.
+    <div *ngIf="userError" class="alert alert-danger">Erreur lors du chargement des utilisateurs.</div>
+    <div *ngIf="!userError && users.length === 0" class="alert alert-warning">Aucun utilisateur trouvé.</div>
+
+    <div class="table-responsive">
+      <table *ngIf="!userError && users.length > 0" class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let user of users; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>{{ user.name }}</td>
+          <td>{{ user.email }}</td>
+          <td>{{ user.role }}</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!-- Aucun utilisateur -->
-    <div *ngIf="!userError && users.length === 0" class="alert alert-warning mt-3">
-      Aucun utilisateur trouvé.
-    </div>
-
-    <!-- Table -->
-    <table *ngIf="!userError && users.length > 0" class="table table-bordered table-striped mt-3">
-      <thead class="table-light">
-      <tr>
-        <th>#</th>
-        <th>Nom</th>
-        <th>Email</th>
-        <th>Rôle</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let user of users; index as i">
-        <td>{{ i + 1 }}</td>
-        <td>{{(user.name) }}</td>
-        <td>{{ user.email }}</td>
-        <td>{{ user.role }}</td>
-      </tr>
-      </tbody>
-    </table>
   </div>
 
   <!-- Liste des cours -->
   <div *ngIf="currentTab === 'courses'">
-    <h4>Liste des cours</h4>
+    <h4 class="mb-3">Liste des cours</h4>
 
-    <!-- Message d'erreur -->
-    <div *ngIf="courseError" class="alert alert-danger mt-3">
-      Erreur lors du chargement des cours.
+    <div *ngIf="courseError" class="alert alert-danger">Erreur lors du chargement des cours.</div>
+    <div *ngIf="!courseError && courses.length === 0" class="alert alert-warning">Aucun cours disponible.</div>
+
+    <div class="table-responsive">
+      <table *ngIf="!courseError && courses.length > 0" class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Titre</th>
+          <th>Description</th>
+          <th>Enseignant</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let course of courses; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>{{ course.title }}</td>
+          <td>{{ course.description }}</td>
+          <td>{{ course.teacherName || course.teacherId }}</td>
+        </tr>
+        </tbody>
+      </table>
     </div>
-
-    <!-- Aucun cours -->
-    <div *ngIf="!courseError && courses.length === 0" class="alert alert-warning mt-3">
-      Aucun cours disponible.
-    </div>
-
-    <!-- Table -->
-    <table *ngIf="!courseError && courses.length > 0" class="table table-bordered table-striped mt-3">
-      <thead class="table-light">
-      <tr>
-        <th>#</th>
-        <th>Titre</th>
-        <th>Description</th>
-        <th>Enseignant</th>
-      </tr>
-      </thead>
-      <tbody>
-      <tr *ngFor="let course of courses; index as i">
-        <td>{{ i + 1 }}</td>
-        <td>{{ course.title }}</td>
-        <td>{{ course.description }}</td>
-        <td>{{ course.teacherName || course.teacherId }}</td>
-      </tr>
-      </tbody>
-    </table>
   </div>
 </div>
