@@ -36,12 +36,12 @@ export class AdminComponent implements OnInit {
   loadUsers() {
     this.userService.getAllUsers().subscribe({
       next: (users: any[]) => {
-        console.log('✔️ Utilisateurs reçus :', users);
+        console.log('Utilisateurs reçus :', users);
         this.users = users;
         this.userError = false;
       },
       error: err => {
-        console.error('❌ Erreur lors du chargement des utilisateurs :', err);
+        console.error('Erreur lors du chargement des utilisateurs :', err);
         this.userError = true;
         this.users = [];
       }

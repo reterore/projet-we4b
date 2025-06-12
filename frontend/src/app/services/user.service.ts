@@ -15,7 +15,7 @@ export interface User {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = '/api/users'; // fonctionne avec proxy.conf.json
+  private apiUrl = 'http://localhost:3000/api/users';
 
   constructor(private http: HttpClient) {}
 
