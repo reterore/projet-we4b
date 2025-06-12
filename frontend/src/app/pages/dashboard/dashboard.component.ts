@@ -10,8 +10,10 @@ interface User {
   email: string;
   name: string;
   surname: string;
+  role: string;
   selectedCourses: string[];
 }
+
 
 @Component({
   selector: 'app-dashboard',
@@ -21,6 +23,9 @@ interface User {
 export class DashboardComponent implements OnInit {
   user: User | null = null;
   courses: Course[] = [];
+  isProf: boolean = false;
+  allUsers: User[] = [];
+  allCourses: Course[] = [];
 
   constructor(
     private courseService: CourseService,
@@ -40,11 +45,28 @@ export class DashboardComponent implements OnInit {
     this.http.get<User>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
         this.user = user;
+        this.isProf = user.role === 'teacher'; // ✅ Vérification du rôle
+
+        // Récupérer tous les cours
         this.courseService.getCourses().subscribe(allCourses => {
+          // Cours sélectionnés par l'utilisateur
           this.courses = allCourses.filter(course =>
-            user.selectedCourses.includes(course._id ?? '')
+            user.selectedCourses?.includes(course._id ?? '')
           );
+
+          // Si prof, stocker aussi tous les cours
+          if (this.isProf) {
+            this.allCourses = allCourses;
+          }
         });
+
+        // Si prof, charger tous les utilisateurs
+        if (this.isProf) {
+          this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
+            next: users => this.allUsers = users,
+            error: err => console.error('Erreur chargement des utilisateurs :', err)
+          });
+        }
       },
       error: err => {
         console.error('Erreur utilisateur :', err);

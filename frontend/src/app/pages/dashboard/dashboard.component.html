@@ -69,6 +69,7 @@
 
 <!-- Main content -->
 <div class="main-content">
+  <div class="container-fluid">
   <h2 class="mb-4"><br><br>Bienvenue, {{ user?.surname }} {{ user?.name }} </h2>
 
   <div *ngIf="courses.length === 0; else coursList">
@@ -90,6 +91,50 @@
       </div>
     </div>
   </ng-template>
+    <!-- 👨‍🏫 Section visible uniquement si professeur -->
+    <div *ngIf="isProf">
+      <hr class="my-5">
+      <h3 class="mb-3">Tous les utilisateurs</h3>
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th>Rôle</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let u of allUsers; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>{{ u.surname }} {{ u.name }}</td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.role }}</td>
+        </tr>
+        </tbody>
+      </table>
+
+      <h3 class="mt-5 mb-3">Tous les cours</h3>
+      <table class="table table-bordered table-striped">
+        <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Titre</th>
+          <th>Description</th>
+          <th>Professeur</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let c of allCourses; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>{{ c.title }}</td>
+          <td>{{ c.description }}</td>
+          <td>{{ c.teacherId }}</td> <!-- Ou à remplacer plus tard par nom du prof si dispo -->
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
 
 

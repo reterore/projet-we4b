@@ -1,4 +1,6 @@
 .main-content {
-  margin-left: 240px; /* même largeur que la sidebar */
+  margin-left: 240px;
   padding: 20px;
+  max-width: calc(100% - 240px); /* 👈 empêche le contenu de déborder */
+  overflow-x: auto;              /* 👈 scroll horizontal si nécessaire */
 }
