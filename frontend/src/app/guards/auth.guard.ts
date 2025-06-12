@@ -9,12 +9,16 @@ export class AuthGuard implements CanActivate {
 
   canActivate(): boolean | UrlTree {
     const token = localStorage.getItem('token');
+    console.log('AuthGuard - token =', token);
 
     if (!token) {
+      console.log('Pas de token → redirection vers /login');
       return this.router.parseUrl('/login');
     }
 
-    // Optionnel : ici on peut ajouter une vérification du rôle ou du token JWT
+    console.log('Token présent → accès autorisé');
     return true;
   }
+
 }
+
