@@ -47,7 +47,7 @@ export class AdminComponent implements OnInit {
       }
     });
   }
-
+//
   loadCourses() {
     this.courseService.getCourses().subscribe({
       next: (courses: Course[]) => {
