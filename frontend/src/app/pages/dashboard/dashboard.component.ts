@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { Course, CourseService } from 'src/app/services/course.service';
+import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
@@ -46,7 +47,7 @@ export class DashboardComponent implements OnInit {
         });
       },
       error: err => {
-        console.error('❌ Erreur utilisateur :', err);
+        console.error('Erreur utilisateur :', err);
         this.router.navigate(['/login']);
       }
     });

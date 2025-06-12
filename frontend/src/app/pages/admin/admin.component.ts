@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { UserService } from '../../services/UserService';
-import { CourseService } from '../../services/CourseService';
+import { UserService } from 'src/app/services/user.service';
+import { CourseService, Course } from 'src/app/services/course.service';
 
 @Component({
   selector: 'app-admin',
@@ -9,7 +9,7 @@ import { CourseService } from '../../services/CourseService';
 })
 export class AdminComponent implements OnInit {
   users: any[] = [];
-  courses: any[] = [];
+  courses: Course[] = [];
   currentTab: 'users' | 'courses' = 'users';
 
   userError: boolean = false;
@@ -44,10 +44,9 @@ export class AdminComponent implements OnInit {
     });
   }
 
-
   loadCourses() {
-    this.courseService.getAllCourses().subscribe({
-      next: (courses: any[]) => {
+    this.courseService.getCourses().subscribe({
+      next: (courses: Course[]) => {
         this.courses = courses;
         this.courseError = false;
       },

@@ -1,0 +1,41 @@
+import { Injectable } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
+
+export interface User {
+  _id?: string;
+  name: string;
+  surname: string;
+  email: string;
+  role: string;
+  selectedCourses?: string[];
+}
+
+@Injectable({
+  providedIn: 'root'
+})
+export class UserService {
+  private apiUrl = '/api/users'; // fonctionne avec proxy.conf.json
+
+  constructor(private http: HttpClient) {}
+
+  // 🔄 Tous les utilisateurs
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(this.apiUrl);
+  }
+
+  // 👤 Un utilisateur par ID
+  getUser(id: string): Observable<User> {
+    return this.http.get<User>(`${this.apiUrl}/${id}`);
+  }
+
+  // ✏️ Mise à jour d'un utilisateur
+  updateUser(id: string, userData: Partial<User>): Observable<User> {
+    return this.http.put<User>(`${this.apiUrl}/${id}`, userData);
+  }
+
+  // 🗑️ Suppression d’un utilisateur (bonus)
+  deleteUser(id: string): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
+}
