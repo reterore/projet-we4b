@@ -67,7 +67,7 @@
 
 <!-- Main content -->
 <div class="main-content">
-  <h2 class="mb-4"><br><br>Bienvenue, {{ user?.prenom }} {{ user?.nom }} 👋</h2>
+  <h2 class="mb-4"><br><br>Bienvenue, {{ user?.surname }} {{ user?.name }} 👋</h2>
 
   <div *ngIf="courses.length === 0; else coursList">
     <div class="alert alert-warning">

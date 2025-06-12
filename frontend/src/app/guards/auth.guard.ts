@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 
 @Injectable({
   providedIn: 'root'
@@ -7,12 +7,14 @@ import { CanActivate, Router } from '@angular/router';
 export class AuthGuard implements CanActivate {
   constructor(private router: Router) {}
 
-  canActivate(): boolean {
+  canActivate(): boolean | UrlTree {
     const token = localStorage.getItem('token');
+
     if (!token) {
-      this.router.navigate(['/login']);
-      return false;
+      return this.router.parseUrl('/login');
     }
+
+    // Optionnel : ici on peut ajouter une vérification du rôle ou du token JWT
     return true;
   }
 }

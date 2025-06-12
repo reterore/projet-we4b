@@ -26,8 +26,8 @@ router.post('/login', async (req, res) => {
             token,
             user: {
                 _id: user._id,
-                prenom: user.prenom,
-                nom: user.nom,
+                surname: user.surname,
+                name: user.name,
                 email: user.email,
                 role: user.role
             }
@@ -41,9 +41,9 @@ router.post('/login', async (req, res) => {
 // 📝 Inscription
 router.post('/register', async (req, res) => {
     try {
-        const { prenom, nom, email, password, role } = req.body;
+        const { name, surname, email, password, role } = req.body;
 
-        if (!prenom || !nom || !email || !password || !role) {
+        if (!name || !surname || !email || !password || !role) {
             return res.status(400).json({ error: 'Tous les champs sont requis' });
         }
 
@@ -54,7 +54,7 @@ router.post('/register', async (req, res) => {
 
         const passwordHash = await bcrypt.hash(password, 10);
 
-        const newUser = new User({ prenom, nom, email, passwordHash, role });
+        const newUser = new User({ name, surname, email, passwordHash, role });
         await newUser.save();
 
         res.status(201).json({ message: 'Utilisateur créé avec succès' });

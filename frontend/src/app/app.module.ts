@@ -11,6 +11,7 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { CoursesComponent } from './pages/courses/courses.component';
 import { CourseFormComponent } from './pages/course-form/course-form.component';
 import { SelectCoursesComponent } from './pages/select-courses/select-courses.component';
+import { AdminComponent } from './pages/admin/admin.component';
 
 @NgModule({
   declarations: [
@@ -20,7 +21,8 @@ import { SelectCoursesComponent } from './pages/select-courses/select-courses.co
     DashboardComponent,
     CoursesComponent,
     CourseFormComponent,
-    SelectCoursesComponent
+    SelectCoursesComponent,
+    AdminComponent
   ],
   imports: [
     BrowserModule,

@@ -1,26 +1,38 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-
 require('dotenv').config();
+
 const app = express();
+
+// Middleware CORS et JSON
 app.use(cors());
 app.use(express.json());
 
-mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/we4b')
-    .then(() => console.log('MongoDB connecté'))
-    .catch(err => console.error(err));
+// Connexion MongoDB
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/we4b', {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+})
+    .then(() => console.log('✅ MongoDB connecté'))
+    .catch(err => {
+        console.error('❌ Erreur MongoDB :', err);
+        process.exit(1); // stoppe le serveur si la DB ne répond pas
+    });
 
+// Importation des routes
 const authRoutes = require('./routes/auth');
-app.use('/api/auth', authRoutes);
-
 const courseRoutes = require('./routes/courseRoutes');
-app.use('/api/courses', courseRoutes);
-
 const userRoutes = require('./routes/userRoutes');
+
+// Définition des routes
+app.use('/api/auth', authRoutes);
+app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
 
-
-
+// Route de test
 app.get('/api/test', (req, res) => res.json({ message: 'API OK' }));
-app.listen(3000, () => console.log('Serveur sur http://localhost:3000'));
+
+// Lancement du serveur
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`));

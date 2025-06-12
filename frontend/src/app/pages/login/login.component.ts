@@ -13,28 +13,54 @@ export class LoginComponent {
   message: string | null = null;
   messageType: 'success' | 'error' | null = null;
 
-  constructor(private fb: FormBuilder, private auth: AuthService, private router: Router) {
+  constructor(
+    private fb: FormBuilder,
+    private auth: AuthService,
+    private router: Router
+  ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
       password: ['', Validators.required]
     });
   }
 
-  onSubmit() {
-    if (this.loginForm.valid) {
-      this.auth.login(this.loginForm.value).subscribe({
-        next: res => {
-          this.auth.setSession(res.token, res.user);
-          this.message = 'Connexion réussie. Redirection...';
-          this.messageType = 'success';
-          setTimeout(() => this.router.navigate(['/dashboard']), 500);
-        },
-        error: err => {
-          this.message = err.error?.error || 'Email ou mot de passe incorrect';
-          this.messageType = 'error';
-        }
-      });
-    }
-  }
+  onSubmit(): void {
+    if (this.loginForm.invalid) {
+      this.message = 'Tous les champs sont requis.';
+      this.messageType = 'error';
 
+      return;
+    }
+
+    this.auth.login(this.loginForm.value).subscribe({
+      next: res => {
+        this.auth.setSession(res.token, res.user);
+        this.message = 'Connexion réussie. Redirection...';
+        this.messageType = 'success';
+
+        const role = res.user?.role;
+        console.log('🟢 Utilisateur connecté avec rôle :', role);
+
+        setTimeout(() => {
+          switch (role) {
+            case 'admin':
+              this.router.navigate(['/admin']);
+              break;
+            case 'teacher':
+            case 'student':
+              this.router.navigate(['/dashboard']);
+              break;
+            default:
+              this.router.navigate(['/']);
+              break;
+          }
+        }, 500);
+      },
+      error: err => {
+        this.message = err.error?.error || 'Email ou mot de passe incorrect';
+        this.messageType = 'error';
+        console.error('❌ Erreur de login :', err);
+      }
+    });
+  }
 }

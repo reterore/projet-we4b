@@ -7,8 +7,8 @@ import { AuthService } from 'src/app/services/auth.service';
 interface User {
   _id: string;
   email: string;
-  nom: string;
-  prenom: string;
+  name: string;
+  surname: string;
   selectedCourses: string[];
 }
 
@@ -30,19 +30,15 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.auth.getUserId();
-
     if (!userId) {
       console.error('Utilisateur non connecté.');
       this.router.navigate(['/login']);
       return;
     }
 
-    // Charger l'utilisateur connecté
     this.http.get<User>(`http://localhost:3000/api/users/${userId}`).subscribe({
-      next: (user: User) => {
+      next: user => {
         this.user = user;
-
-        // Charger tous les cours puis filtrer ceux sélectionnés par l'utilisateur
         this.courseService.getCourses().subscribe(allCourses => {
           this.courses = allCourses.filter(course =>
             user.selectedCourses.includes(course._id ?? '')
@@ -50,7 +46,7 @@ export class DashboardComponent implements OnInit {
         });
       },
       error: err => {
-        console.error("Erreur utilisateur :", err);
+        console.error('❌ Erreur utilisateur :', err);
         this.router.navigate(['/login']);
       }
     });
