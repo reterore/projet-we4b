@@ -7,7 +7,7 @@ export interface Course {
   title: string;
   description: string;
   teacherId: string;
-  teacherName?: string;
+  teacherName?: string; // Optionnel pour affichage enrichi
 }
 
 @Injectable({
@@ -18,23 +18,27 @@ export class CourseService {
 
   constructor(private http: HttpClient) {}
 
+  // 📚 Récupérer tous les cours
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(this.apiUrl);
   }
 
-  // Bonus pour plus tard :
+  // ➕ Créer un cours
   createCourse(course: Course): Observable<Course> {
     return this.http.post<Course>(this.apiUrl, course);
   }
 
-  deleteCourse(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  // 🗑️ Supprimer un cours
+  deleteCourse(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
+  // ✏️ Modifier un cours
   updateCourse(id: string, course: Course): Observable<Course> {
     return this.http.put<Course>(`${this.apiUrl}/${id}`, course);
   }
 
+  // 🔍 Obtenir un cours par ID
   getCourse(id: string): Observable<Course> {
     return this.http.get<Course>(`${this.apiUrl}/${id}`);
   }

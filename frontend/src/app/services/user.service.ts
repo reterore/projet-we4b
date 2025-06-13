@@ -19,23 +19,23 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔄 Tous les utilisateurs
+  // 🔄 Obtenir tous les utilisateurs
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
-  // 👤 Un utilisateur par ID
+  // 👤 Obtenir un utilisateur par ID
   getUser(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  // ✏️ Mise à jour d'un utilisateur
+  // ✏️ Mettre à jour un utilisateur
   updateUser(id: string, userData: Partial<User>): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, userData);
   }
 
-  // 🗑️ Suppression d’un utilisateur (bonus)
-  deleteUser(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+  // 🗑️ Supprimer un utilisateur
+  deleteUser(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }

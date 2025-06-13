@@ -9,6 +9,8 @@ import {AuthGuard} from "./guards/auth.guard";
 import {SelectCoursesComponent} from "./pages/select-courses/select-courses.component";
 import { AdminComponent } from './pages/admin/admin.component';
 import {ProfileComponent} from "./pages/profile/profile.component";
+import {EditCourseComponent} from "./pages/edit-course/edit-course.component";
+import {EditUserComponent} from "./pages/edit-user/edit-user.component";
 
 
 const routes: Routes = [
@@ -21,6 +23,8 @@ const routes: Routes = [
   { path: 'courses/new', component: CourseFormComponent },
   { path: 'courses/edit/:id', component: CourseFormComponent },
   { path: 'admin', component: AdminComponent },
+  { path: 'edit-user/:id', component: EditUserComponent },
+  { path: 'edit-course/:id', component: EditCourseComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'login' },// route catch-all pour 404 !!! toujours laisser en dernier !!!
 

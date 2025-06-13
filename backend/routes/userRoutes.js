@@ -2,31 +2,37 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/User');
 const bcrypt = require('bcrypt');
+const mongoose = require('mongoose');
 
-// ✅ GET : un utilisateur par ID → doit être avant le .get('/')
+// ✅ GET : un utilisateur par ID (doit précéder le GET /)
 router.get('/:id', async (req, res) => {
+    const userId = req.params.id;
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: "ID utilisateur invalide." });
+    }
+
     try {
-        const user = await User.findById(req.params.id).select('-passwordHash');
-        if (!user) return res.status(404).json({ error: 'Utilisateur introuvable' });
+        const user = await User.findById(userId).select('-passwordHash');
+        if (!user) return res.status(404).json({ error: 'Utilisateur introuvable.' });
         res.json(user);
     } catch (err) {
         console.error('❌ Erreur GET /users/:id :', err);
-        res.status(500).json({ error: 'Erreur serveur lors de la récupération de l’utilisateur' });
+        res.status(500).json({ error: "Erreur serveur lors de la récupération de l’utilisateur." });
     }
 });
 
-// GET /api/users — renvoie tous les utilisateurs
+// ✅ GET /api/users — Liste de tous les utilisateurs
 router.get('/', async (req, res) => {
     try {
-        const users = await User.find();
+        const users = await User.find().select('-passwordHash');
         res.json(users);
     } catch (err) {
-        console.error('❌ Erreur GET /api/users :', err);
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('❌ Erreur GET /users :', err);
+        res.status(500).json({ error: 'Erreur serveur.' });
     }
 });
 
-// ✅ POST : inscription d’un utilisateur
+// ✅ POST /api/users — Création d’un utilisateur
 router.post('/', async (req, res) => {
     try {
         const { surname, name, email, password, role } = req.body;
@@ -63,15 +69,21 @@ router.post('/', async (req, res) => {
     }
 });
 
-// PUT : mise à jour des cours sélectionnés
+// ✅ PUT /api/users/:id/select-courses — Mise à jour des cours sélectionnés
 router.put('/:id/select-courses', async (req, res) => {
     try {
         const { selectedCourses } = req.body;
+
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
             { selectedCourses },
             { new: true }
         );
+
+        if (!updatedUser) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé.' });
+        }
+
         res.json(updatedUser);
     } catch (error) {
         console.error('❌ Erreur PUT /users/:id/select-courses :', error);
@@ -79,27 +91,39 @@ router.put('/:id/select-courses', async (req, res) => {
     }
 });
 
-// PUT /api/users/:id → mise à jour des infos du user
+// ✅ PUT /api/users/:id — Mise à jour des infos utilisateur (inclut rôle)
 router.put('/:id', async (req, res) => {
-    try {
-        const { name, surname, email } = req.body;
+    const { name, surname, email, role } = req.body;
 
+    try {
         const updatedUser = await User.findByIdAndUpdate(
             req.params.id,
-            { name, surname, email },
-            { new: true }
+            { name, surname, email, role },
+            { new: true, runValidators: true }
         );
 
         if (!updatedUser) {
-            return res.status(404).json({ error: 'Utilisateur non trouvé' });
+            return res.status(404).json({ error: 'Utilisateur non trouvé.' });
         }
 
         res.json(updatedUser);
     } catch (err) {
-        console.error('Erreur update user:', err);
-        res.status(500).json({ error: 'Erreur serveur' });
+        console.error('❌ Erreur PUT /users/:id :', err);
+        res.status(500).json({ error: 'Erreur serveur.' });
     }
-});
 
+    router.delete('/:id', async (req, res) => {
+        try {
+            const deletedUser = await User.findByIdAndDelete(req.params.id);
+            if (!deletedUser) {
+                return res.status(404).json({ error: 'Utilisateur non trouvé.' });
+            }
+            res.json({ message: 'Utilisateur supprimé avec succès.' });
+        } catch (error) {
+            console.error('❌ Erreur DELETE /users/:id :', error);
+            res.status(500).json({ error: 'Erreur lors de la suppression de l’utilisateur.' });
+        }
+    });
+});
 
 module.exports = router;
