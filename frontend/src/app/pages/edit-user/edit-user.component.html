@@ -1,0 +1,44 @@
+<div class="container py-5">
+  <div class="card shadow mx-auto" style="max-width: 600px;">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">✏️ Modifier l'utilisateur</h4>
+    </div>
+
+    <div class="card-body">
+      <!-- Gestion d'erreur -->
+      <div *ngIf="error" class="alert alert-danger mb-3">{{ error }}</div>
+
+      <!-- Formulaire -->
+      <form [formGroup]="userForm" (ngSubmit)="onSubmit()" *ngIf="userForm">
+        <div class="mb-3">
+          <label class="form-label">Nom</label>
+          <input type="text" class="form-control" formControlName="name" placeholder="ex: Dupont" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Prénom</label>
+          <input type="text" class="form-control" formControlName="surname" placeholder="ex: Jean" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Email</label>
+          <input type="email" class="form-control" formControlName="email" [disabled]="true" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label">Rôle</label>
+          <select class="form-select" formControlName="role">
+            <option value="student">Étudiant</option>
+            <option value="teacher">Professeur</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+
+        <div class="d-flex justify-content-between">
+          <button type="button" class="btn btn-outline-secondary" (click)="cancel()">Annuler</button>
+          <button type="submit" class="btn btn-success" [disabled]="userForm.invalid">✅ Confirmer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
