@@ -9,6 +9,7 @@ import {AuthGuard} from "./guards/auth.guard";
 import {SelectCoursesComponent} from "./pages/select-courses/select-courses.component";
 import { AdminComponent } from './pages/admin/admin.component';
 import {ProfileComponent} from "./pages/profile/profile.component";
+import { CourseDetailComponent } from './pages/course-detail/course-detail.component';
 
 
 const routes: Routes = [
@@ -17,15 +18,13 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'select-courses', component: SelectCoursesComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
-  { path: 'courses', component: CoursesComponent },
   { path: 'courses/new', component: CourseFormComponent },
   { path: 'courses/edit/:id', component: CourseFormComponent },
+  { path: 'courses/:id', component: CourseDetailComponent },
+  { path: 'courses', component: CoursesComponent },
   { path: 'admin', component: AdminComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'login' },// route catch-all pour 404 !!! toujours laisser en dernier !!!
-
-
-
 
 ];
 

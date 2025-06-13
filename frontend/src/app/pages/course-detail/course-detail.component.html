@@ -1,0 +1,14 @@
+<div class="container py-4" *ngIf="course">
+  <h2>{{ course.title }}</h2>
+  <p>{{ course.description }}</p>
+
+  <hr>
+
+  <div *ngIf="isTeacher">
+    <p><strong>👨‍🏫 Mode enseignant :</strong> Vous pouvez gérer ce cours</p>
+  </div>
+
+  <div *ngIf="!isTeacher">
+    <p><strong>👨‍🎓 Mode étudiant :</strong> Vous consultez ce cours</p>
+  </div>
+</div>
