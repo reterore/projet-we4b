@@ -24,11 +24,14 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/we4b', {
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
+const contentRoutes = require('./routes/contentRoutes');
 
 // Définition des routes
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/contents', contentRoutes);
+
 
 // Route de test
 app.get('/api/test', (req, res) => res.json({ message: 'API OK' }));

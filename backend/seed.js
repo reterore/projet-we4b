@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 const Course = require('./models/Course');
 const User = require('./models/User');
+const Content = require('./models/Content'); // ✅ Ajouté pour les modules
 
 mongoose.connect('mongodb://localhost:27017/we4b')
     .then(() => console.log('✅ MongoDB connecté'))
@@ -9,7 +10,7 @@ mongoose.connect('mongodb://localhost:27017/we4b')
 
 (async () => {
     try {
-        // Vérifier si un admin existe déjà
+        // 👑 Création ou récupération de l'admin
         const existingAdmin = await User.findOne({ email: 'admin@we4b.com' });
         let admin;
 
@@ -29,10 +30,12 @@ mongoose.connect('mongodb://localhost:27017/we4b')
             console.log('👑 Nouvel admin inséré :', savedAdmin.email);
         }
 
-        // Vérifier si les cours existent déjà
+        // 📚 Création des cours si aucun n'existe
         const courseCount = await Course.countDocuments();
+        let mathCourse;
         if (courseCount > 0) {
             console.log('📚 Les cours existent déjà. Aucun ajout effectué.');
+            mathCourse = await Course.findOne({ title: 'Mathématiques' }); // 🔍 utile pour les contenus
         } else {
             const courses = [
                 { title: 'Mathématiques', description: 'Algebra, géométrie...', teacherId: admin._id },
@@ -41,8 +44,33 @@ mongoose.connect('mongodb://localhost:27017/we4b')
                 { title: 'Anglais', description: 'Grammaire et vocabulaire', teacherId: admin._id },
                 { title: 'Philosophie', description: 'Philosophie morale et politique', teacherId: admin._id },
             ];
-            await Course.insertMany(courses);
+            const insertedCourses = await Course.insertMany(courses);
             console.log('📚 Cours insérés avec succès');
+            mathCourse = insertedCourses.find(c => c.title === 'Mathématiques');
+        }
+
+        // 📂 Insertion de contenus pour "Mathématiques"
+        if (mathCourse) {
+            const existingContents = await Content.find({ courseId: mathCourse._id });
+            if (existingContents.length === 0) {
+                await Content.insertMany([
+                    {
+                        title: 'Chapitre 1 : Équations différentielles',
+                        description: 'Introduction aux équations différentielles du 1er ordre',
+                        fileUrl: '/uploads/equations.pdf',
+                        courseId: mathCourse._id
+                    },
+                    {
+                        title: 'Chapitre 2 : Séries de Fourier',
+                        description: 'Supports de cours sur les séries de Fourier et les applications',
+                        fileUrl: '/uploads/fourier.pdf',
+                        courseId: mathCourse._id
+                    }
+                ]);
+                console.log('📂 Contenus pédagogiques insérés pour Mathématiques');
+            } else {
+                console.log('📂 Contenus pédagogiques déjà présents pour Mathématiques');
+            }
         }
 
     } catch (err) {
