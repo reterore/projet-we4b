@@ -6,22 +6,39 @@
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-info text-white">
       <h5 class="mb-0">📚 Modules pédagogiques</h5>
+      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter</button>
     </div>
     <div class="card-body">
-      <div *ngIf="contents.length === 0">
+      <div *ngIf="modules.length === 0">
         <p class="alert alert-warning">Aucun contenu pédagogique disponible.</p>
       </div>
-      <ul class="list-group" *ngIf="contents.length > 0">
-        <li class="list-group-item" *ngFor="let content of contents">
-          <h6>{{ content.title }}</h6>
-          <p>{{ content.description }}</p>
-          <a *ngIf="content.fileUrl" [href]="content.fileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-            📎 Voir le fichier
-          </a>
+      <ul class="list-group" *ngIf="modules.length > 0">
+        <li *ngFor="let m of modules" class="list-group-item">
+          <h6>{{ m.title }}</h6>
         </li>
       </ul>
     </div>
+
   </div>
+  <!-- Modale d'ajout -->
+  <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showModuleModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Créer un nouveau module</h5>
+          <button type="button" class="btn-close" (click)="showModuleModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <input [(ngModel)]="newModuleTitle" class="form-control" placeholder="Nom du module" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="showModuleModal = false">Annuler</button>
+          <button class="btn btn-primary" (click)="addModule()">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Section Forum -->
   <div class="card mb-4 shadow-sm">

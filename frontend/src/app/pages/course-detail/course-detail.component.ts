@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ContentService, Content } from 'src/app/services/content.service';
+import { ModuleService, Module } from 'src/app/services/module.service';
+import { AuthService } from 'src/app/services/auth.service';
 
 @Component({
   selector: 'app-course-detail',
@@ -10,17 +12,47 @@ import { ContentService, Content } from 'src/app/services/content.service';
 export class CourseDetailComponent implements OnInit {
   contents: Content[] = [];
   courseId!: string;
+  modules: Module[] = [];
+  showModuleModal = false;
+  newModuleTitle = '';
+  isProf = false;
 
   constructor(
     private route: ActivatedRoute,
-    private contentService: ContentService
-  ) {}
+    private contentService: ContentService,
+    private moduleService: ModuleService,
+    private auth: AuthService
+
+
+) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id')!;
-    this.contentService.getContentsByCourse(this.courseId).subscribe({
-      next: contents => this.contents = contents,
-      error: err => console.error('Erreur chargement contenus', err)
+    const user = this.auth.getUser();
+    this.isProf = user?.role === 'teacher';
+
+    this.moduleService.getModulesByCourse(this.courseId).subscribe(mods => {
+      this.modules = mods;
     });
   }
+
+  addModule() {
+    if (!this.newModuleTitle.trim()) return;
+
+    const newMod: Module = {
+      title: this.newModuleTitle,
+      courseId: this.courseId
+    };
+
+    this.moduleService.createModule(newMod).subscribe({
+      next: (mod) => {
+        console.log('✅ Nouveau module ajouté :', mod); // <-- Ajoute ça pour vérif
+        this.modules.push(mod);                         // <-- Très important
+        this.newModuleTitle = '';
+        this.showModuleModal = false;
+      },
+      error: (err) => console.error('Erreur création module', err)
+    });
+  }
+
 }
