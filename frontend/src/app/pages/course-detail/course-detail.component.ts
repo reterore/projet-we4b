@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { ContentService, Content } from 'src/app/services/content.service';
 import { ModuleService, Module } from 'src/app/services/module.service';
 import { AuthService } from 'src/app/services/auth.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-course-detail',
@@ -21,9 +22,8 @@ export class CourseDetailComponent implements OnInit {
     private route: ActivatedRoute,
     private contentService: ContentService,
     private moduleService: ModuleService,
-    private auth: AuthService
-
-
+    private auth: AuthService,
+    private router: Router
 ) {}
 
   ngOnInit(): void {
@@ -54,5 +54,7 @@ export class CourseDetailComponent implements OnInit {
       error: (err) => console.error('Erreur création module', err)
     });
   }
-
+  goBack() {
+    this.router.navigate(['/dashboard']);
+  }
 }

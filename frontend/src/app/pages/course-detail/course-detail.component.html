@@ -1,11 +1,16 @@
 <div class="container py-4">
   <!-- Titre du cours -->
-  <h2 class="mb-4 text-primary">📘 Détails du cours</h2>
+  <h2 class="mb-4 text-primary">Détails du cours</h2>
+  <div class="mb-3">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      Revenir au menu
+    </button>
+  </div>
 
   <!-- Section Modules pédagogiques -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0">📚 Modules pédagogiques</h5>
+      <h5 class="mb-0">Modules pédagogiques</h5>
       <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter</button>
     </div>
     <div class="card-body">
@@ -43,7 +48,7 @@
   <!-- Section Forum -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0">💬 Forum de discussion</h5>
+      <h5 class="mb-0">Forum de discussion</h5>
     </div>
     <div class="card-body">
       <p>Fonctionnalité à venir : ici les étudiants et enseignants pourront échanger sur le contenu du cours.</p>
@@ -56,7 +61,7 @@
   <!-- Section Devoirs -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0">📝 Devoirs à rendre</h5>
+      <h5 class="mb-0">Devoirs à rendre</h5>
     </div>
     <div class="card-body">
       <p>Fonctionnalité à venir : ici seront listés les devoirs et leurs dates limites.</p>
