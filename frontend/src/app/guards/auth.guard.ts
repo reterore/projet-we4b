@@ -25,7 +25,7 @@ export class AuthGuard implements CanActivate {
     const isAdminRoute = route.routeConfig?.path === 'admin';
     if (isAdminRoute && role !== 'admin') {
       console.warn('❌ Accès refusé : rôle insuffisant pour /admin');
-      return this.router.parseUrl('/dashboard'); // ou une autre page d’accueil
+      return this.router.parseUrl('/dashboard');
     }
 
     console.log('✅ AuthGuard : accès autorisé');
