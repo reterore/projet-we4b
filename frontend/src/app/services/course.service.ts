@@ -2,13 +2,19 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+export interface Teacher {
+  _id: string;
+  name: string;
+  surname: string;
+}
+
 export interface Course {
   _id?: string;
   title: string;
   description: string;
-  teacherId: string;
-  teacherName?: string; // Optionnel pour affichage enrichi
+  teacherId: string | Teacher;  // Peut être l'ID ou un objet selon le contexte
 }
+
 
 @Injectable({
   providedIn: 'root'
@@ -42,4 +48,14 @@ export class CourseService {
   getCourse(id: string): Observable<Course> {
     return this.http.get<Course>(`${this.apiUrl}/${id}`);
   }
+
+  getTeacherName(course: Course): string {
+    const teacher = course.teacherId;
+    if (teacher && typeof teacher === 'object' && 'name' in teacher && 'surname' in teacher) {
+      return `${teacher.name} ${teacher.surname}`;
+    }
+    return `(ID: ${teacher})`;
+  }
+
 }
+

@@ -5,37 +5,45 @@ require('dotenv').config();
 
 const app = express();
 
-// Middleware CORS et JSON
-app.use(cors());
+// ✅ Middleware JSON
 app.use(express.json());
 
-// Connexion MongoDB
+// ✅ Middleware CORS
+app.use(cors({
+    origin: 'http://localhost:4200', // ← adapte à ton frontend si besoin
+    credentials: true
+}));
+
+// ✅ Connexion MongoDB
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/we4b', {
     useNewUrlParser: true,
     useUnifiedTopology: true
 })
-    .then(() => console.log('✅ MongoDB connecté'))
+    .then(() => console.log('✅ Connexion MongoDB réussie'))
     .catch(err => {
-        console.error('❌ Erreur MongoDB :', err);
-        process.exit(1); // stoppe le serveur si la DB ne répond pas
+        console.error('❌ Erreur de connexion MongoDB :', err);
+        process.exit(1); // Stoppe le serveur si la DB échoue
     });
 
-// Importation des routes
+// ✅ Importation des routes
 const authRoutes = require('./routes/auth');
 const courseRoutes = require('./routes/courseRoutes');
 const userRoutes = require('./routes/userRoutes');
 const contentRoutes = require('./routes/contentRoutes');
 
-// Définition des routes
+// ✅ Définition des routes API
 app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/contents', contentRoutes);
 
+// ✅ Route de test
+app.get('/api/test', (req, res) => {
+    res.json({ message: '✅ API opérationnelle' });
+});
 
-// Route de test
-app.get('/api/test', (req, res) => res.json({ message: 'API OK' }));
-
-// Lancement du serveur
+// ✅ Lancement du serveur
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Serveur démarré sur http://localhost:${PORT}`));
+app.listen(PORT, () => {
+    console.log(`🚀 Serveur lancé sur http://localhost:${PORT}`);
+});

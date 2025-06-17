@@ -28,32 +28,35 @@ export class SelectCoursesComponent implements OnInit {
       return;
     }
 
-    // 1. Récupérer l'utilisateur pour ses cours sélectionnés
+    // 🔁 1. Récupérer l'utilisateur et ses cours sélectionnés
     this.http.get<any>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
-        this.selected = new Set(user.selectedCourses); // 2. Initialiser les cases cochées
+        const selectedCourses = Array.isArray(user.selectedCourses)
+          ? user.selectedCourses
+          : [];
 
-        // 3. Charger tous les cours ensuite
+        this.selected = new Set(selectedCourses);
+
+        // 📚 2. Charger tous les cours ensuite
         this.courseService.getCourses().subscribe(data => {
           this.courses = data;
         });
       },
       error: err => {
-        console.error('Erreur récupération utilisateur', err);
+        console.error('❌ Erreur récupération utilisateur', err);
         this.router.navigate(['/login']);
       }
     });
   }
 
-
-  toggleSelection(courseId: string) {
-    if (this.selected.has(courseId)) {
-      this.selected.delete(courseId);
-    } else {
-      this.selected.add(courseId);
-    }
+  // ✅ Ajouter / retirer un cours de la sélection
+  toggleSelection(courseId: string): void {
+    this.selected.has(courseId)
+      ? this.selected.delete(courseId)
+      : this.selected.add(courseId);
   }
 
+  // ✅ Sauvegarde vers l'API utilisateur
   saveSelection(): void {
     const userId = this.auth.getUserId();
     if (!userId) {
@@ -65,9 +68,23 @@ export class SelectCoursesComponent implements OnInit {
       selectedCourses: Array.from(this.selected)
     }).subscribe({
       next: () => this.router.navigate(['/dashboard']),
-      error: err => console.error('Erreur lors de la sauvegarde', err)
+      error: err => console.error('❌ Erreur lors de la sauvegarde', err)
     });
   }
 
+  getTeacherName(course: Course): string {
+    const teacher = course.teacherId;
+    if (teacher && typeof teacher === 'object') {
+      if ('firstname' in teacher && 'lastname' in teacher) {
+        // @ts-ignore
+        return `${teacher.name} ${teacher.surname}`;
+      }
+      if ('name' in teacher && 'surname' in teacher) {
+        return `${teacher.name} ${teacher.surname}`;
+      }
+    }
+    return `(Prof inconnu: ${teacher})`;
+  }
 
 }
+

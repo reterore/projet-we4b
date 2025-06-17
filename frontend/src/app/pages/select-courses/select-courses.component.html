@@ -1,15 +1,49 @@
-<div class="container mt-4">
-  <h3>Choisissez vos cours</h3>
-  <form>
-    <div *ngFor="let course of courses" class="form-check">
-      <input class="form-check-input" type="checkbox"
-              [value]="course._id!"
-              [checked]="selected.has(course._id!)"
-              (change)="toggleSelection(course._id!)">
-      <label class="form-check-label">{{ course.title }}</label>
-    </div>
-  </form>
+<div class="container mt-5">
+  <div class="card shadow">
+    <div class="card-body">
+      <h3 class="card-title mb-4">Choisissez vos Unités d'Enseignement (UE)</h3>
 
-  <button class="btn btn-primary mt-3" (click)="saveSelection()">Enregistrer</button>
-  <button class="btn btn-secondary mt-3 ms-2" routerLink="/dashboard">Retour au tableau de bord</button>
+      <form>
+        <div class="row row-cols-1 row-cols-md-2 g-4">
+          <div *ngFor="let course of courses" class="col">
+            <div class="border rounded bg-white p-4 h-100 shadow-sm position-relative">
+              <!-- Titre du cours -->
+              <div class="d-flex align-items-center mb-2">
+                <input
+                  class="form-check-input me-3"
+                  type="checkbox"
+                  [id]="'course-' + course._id"
+                  [value]="course._id"
+                  [checked]="selected.has(course._id!)"
+                  (change)="toggleSelection(course._id!)"
+                />
+
+                <label class="form-check-label fw-bold fs-5 mb-0" [for]="'course-' + course._id">
+                  {{ course.title }}
+                </label>
+              </div>
+
+              <!-- Description -->
+              <div *ngIf="course.description" class="text-muted small mb-3 border-start ps-2">
+                {{ course.description }}
+              </div>
+
+              <!-- Professeur -->
+              <div class="mt-auto">
+                <span class="badge bg-secondary">
+                  {{ getTeacherName(course) }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Boutons -->
+      <div class="d-flex justify-content-end mt-4">
+        <button class="btn btn-primary me-2" (click)="saveSelection()">Enregistrer</button>
+        <button class="btn btn-outline-secondary" routerLink="/dashboard">↩ Retour au tableau de bord</button>
+      </div>
+    </div>
+  </div>
 </div>

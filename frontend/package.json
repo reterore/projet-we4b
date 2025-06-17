@@ -18,7 +18,11 @@
     "@angular/platform-browser": "~13.3.0",
     "@angular/platform-browser-dynamic": "~13.3.0",
     "@angular/router": "~13.3.0",
+    "bcrypt": "^6.0.0",
     "bootstrap": "^5.3.6",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "jsonwebtoken": "^9.0.2",
     "rxjs": "~7.5.0",
     "tslib": "^2.3.0",
     "zone.js": "~0.11.4"

@@ -80,5 +80,18 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  getTeacherName(course: Course): string {
+    const teacher = course.teacherId;
+    if (teacher && typeof teacher === 'object') {
+      if ('firstname' in teacher && 'lastname' in teacher) {
+        // @ts-ignore
+        return `${teacher.name} ${teacher.surname}`;
+      }
+      if ('name' in teacher && 'surname' in teacher) {
+        return `${teacher.name} ${teacher.surname}`;
+      }
+    }
+    return `(Prof inconnu: ${teacher})`;
+  }
 
 }

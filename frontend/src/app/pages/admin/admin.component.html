@@ -16,10 +16,14 @@
   <!-- Onglets de navigation -->
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      <button class="nav-link" [class.active]="currentTab === 'users'" (click)="setTab('users')">Utilisateurs</button>
+      <button class="nav-link" [class.active]="currentTab === 'users'" (click)="setTab('users')">
+        Utilisateurs
+      </button>
     </li>
     <li class="nav-item">
-      <button class="nav-link" [class.active]="currentTab === 'courses'" (click)="setTab('courses')">Cours</button>
+      <button class="nav-link" [class.active]="currentTab === 'courses'" (click)="setTab('courses')">
+        Cours
+      </button>
     </li>
   </ul>
 
@@ -80,7 +84,12 @@
           <td>{{ i + 1 }}</td>
           <td>{{ course.title }}</td>
           <td>{{ course.description }}</td>
-          <td>{{ course.teacherName || course.teacherId }}</td>
+          <td>
+            <ng-container *ngIf="isTeacherObject(course.teacherId); else showId">
+              {{ getTeacherName(course) }}
+            </ng-container>
+            <ng-template #showId>{{ course.teacherId }}</ng-template>
+          </td>
           <td>
             <button class="btn btn-sm btn-primary me-2" (click)="editCourse(course._id!)">Modifier</button>
             <button class="btn btn-sm btn-danger" (click)="deleteCourse(course._id!)">Supprimer</button>
@@ -90,5 +99,4 @@
       </table>
     </div>
   </div>
-
 </div>

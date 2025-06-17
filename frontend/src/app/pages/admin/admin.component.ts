@@ -22,11 +22,10 @@ export class AdminComponent implements OnInit {
     private courseService: CourseService,
     private auth: AuthService,
     private router: Router,
-    private route: ActivatedRoute // ← Ajout pour lire les query params
+    private route: ActivatedRoute
   ) {}
 
   ngOnInit(): void {
-    // 🔁 Détecte le paramètre `tab` dans l'URL
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
       if (tab === 'courses' || tab === 'users') {
@@ -38,11 +37,18 @@ export class AdminComponent implements OnInit {
     this.loadCourses();
   }
 
-  setTab(tab: 'users' | 'courses') {
+  setTab(tab: 'users' | 'courses'): void {
     this.currentTab = tab;
+
+    // Optionnel : met à jour l'URL avec le paramètre de tab
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { tab },
+      queryParamsHandling: 'merge'
+    });
   }
 
-  loadUsers() {
+  loadUsers(): void {
     this.userService.getAllUsers().subscribe({
       next: users => {
         this.users = users;
@@ -56,7 +62,7 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  loadCourses() {
+  loadCourses(): void {
     this.courseService.getCourses().subscribe({
       next: courses => {
         this.courses = courses;
@@ -68,6 +74,12 @@ export class AdminComponent implements OnInit {
         this.courses = [];
       }
     });
+  }
+
+  isTeacherObject(value: any): value is { name: string; surname: string } {
+    return value && typeof value === 'object' &&
+      typeof value.name === 'string' &&
+      typeof value.surname === 'string';
   }
 
   logout(): void {
@@ -103,5 +115,19 @@ export class AdminComponent implements OnInit {
         error: err => console.error('❌ Erreur suppression cours :', err)
       });
     }
+  }
+
+  getTeacherName(course: Course): string {
+    const teacher = course.teacherId;
+    if (teacher && typeof teacher === 'object') {
+      if ('firstname' in teacher && 'lastname' in teacher) {
+        // @ts-ignore
+        return `${teacher.name} ${teacher.surname}`;
+      }
+      if ('name' in teacher && 'surname' in teacher) {
+        return `${teacher.name} ${teacher.surname}`;
+      }
+    }
+    return `(Prof inconnu: ${teacher})`;
   }
 }
