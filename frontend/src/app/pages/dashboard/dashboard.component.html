@@ -61,11 +61,22 @@
 <!-- Sidebar -->
 <div class="sidebar">
   <a routerLink="/dashboard">🏠 Accueil</a>
-  <a routerLink="/select-courses">📚 Mes cours</a>
-  <a href="#">📝 Mes devoirs</a>
-  <a href="#">📊 Mes notes</a>
+  <a routerLink="/select-courses">📚 Cours</a>
+
+  <!-- Menu spécifique aux étudiants -->
+  <ng-container *ngIf="!isProf">
+    <a href="#">📝 Mes devoirs</a>
+    <a href="#">📊 Mes notes</a>
+  </ng-container>
+
+  <!-- Menu spécifique aux professeurs -->
+  <ng-container *ngIf="isProf">
+    <a routerLink="/user-list">👥 Utilisateurs</a>
+  </ng-container>
+
   <a href="#">📨 Messages</a>
 </div>
+
 
 <!-- Main content -->
 <div class="main-content">

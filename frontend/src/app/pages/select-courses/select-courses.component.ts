@@ -12,6 +12,7 @@ import { HttpClient } from '@angular/common/http';
 export class SelectCoursesComponent implements OnInit {
   courses: Course[] = [];
   selected: Set<string> = new Set();
+  isProf: boolean = false;
 
   constructor(
     private courseService: CourseService,
@@ -31,6 +32,7 @@ export class SelectCoursesComponent implements OnInit {
     // 🔁 1. Récupérer l'utilisateur et ses cours sélectionnés
     this.http.get<any>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
+        this.isProf = user.role === 'teacher'; // ✅ ici
         const selectedCourses = Array.isArray(user.selectedCourses)
           ? user.selectedCourses
           : [];
@@ -49,15 +51,16 @@ export class SelectCoursesComponent implements OnInit {
     });
   }
 
-  // ✅ Ajouter / retirer un cours de la sélection
   toggleSelection(courseId: string): void {
+    if (this.isProf) return; // ⛔ Bloque les actions pour prof
     this.selected.has(courseId)
       ? this.selected.delete(courseId)
       : this.selected.add(courseId);
   }
 
-  // ✅ Sauvegarde vers l'API utilisateur
   saveSelection(): void {
+    if (this.isProf) return; // ⛔ Ne rien faire si prof
+
     const userId = this.auth.getUserId();
     if (!userId) {
       this.router.navigate(['/login']);
@@ -75,10 +78,6 @@ export class SelectCoursesComponent implements OnInit {
   getTeacherName(course: Course): string {
     const teacher = course.teacherId;
     if (teacher && typeof teacher === 'object') {
-      if ('firstname' in teacher && 'lastname' in teacher) {
-        // @ts-ignore
-        return `${teacher.name} ${teacher.surname}`;
-      }
       if ('name' in teacher && 'surname' in teacher) {
         return `${teacher.name} ${teacher.surname}`;
       }
@@ -86,5 +85,7 @@ export class SelectCoursesComponent implements OnInit {
     return `(Prof inconnu: ${teacher})`;
   }
 
+  ifProf(): boolean {
+    return this.isProf;
+  }
 }
-

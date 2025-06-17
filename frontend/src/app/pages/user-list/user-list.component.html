@@ -1,0 +1,26 @@
+<div class="container mt-4">
+  <h2>Liste des utilisateurs</h2>
+
+  <div *ngIf="error" class="alert alert-danger">
+    Impossible de charger les utilisateurs.
+  </div>
+
+  <table *ngIf="!error" class="table table-bordered table-striped mt-3">
+    <thead class="table-dark">
+    <tr>
+      <th>#</th>
+      <th>Nom</th>
+      <th>Email</th>
+      <th>Rôle</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let user of users; let i = index">
+      <td>{{ i + 1 }}</td>
+      <td>{{ user.surname }} {{ user.name }}</td>
+      <td>{{ user.email }}</td>
+      <td>{{ user.role }}</td>
+    </tr>
+    </tbody>
+  </table>
+</div>

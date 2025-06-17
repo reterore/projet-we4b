@@ -15,6 +15,7 @@
                   [id]="'course-' + course._id"
                   [value]="course._id"
                   [checked]="selected.has(course._id!)"
+                  [disabled]="isProf"
                   (change)="toggleSelection(course._id!)"
                 />
 

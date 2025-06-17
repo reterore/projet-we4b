@@ -12,6 +12,7 @@ import { EditCourseComponent } from './pages/edit-course/edit-course.component';
 import { EditUserComponent } from './pages/edit-user/edit-user.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { AdminComponent } from './pages/admin/admin.component';
+import { UserListComponent} from "./pages/user-list/user-list.component";
 
 import { AuthGuard } from './guards/auth.guard';
 
@@ -23,6 +24,8 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: 'select-courses', component: SelectCoursesComponent, canActivate: [AuthGuard] },
+  { path: 'user-list', component: UserListComponent, canActivate: [AuthGuard] },
+
 
   { path: 'courses', component: CoursesComponent },
   { path: 'courses/new', component: CourseFormComponent },
