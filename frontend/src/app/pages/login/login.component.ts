@@ -28,21 +28,19 @@ export class LoginComponent {
     if (this.loginForm.invalid) {
       this.message = 'Tous les champs sont requis.';
       this.messageType = 'error';
-
       return;
     }
 
     this.auth.login(this.loginForm.value).subscribe({
       next: res => {
-        this.auth.setSession(res.token, res.user);
+        this.auth.setSession(res.token, res.user); // 🔐 stocke le token + user
+        console.log('🟢 Utilisateur connecté avec rôle :', res.user.role);
+
         this.message = 'Connexion réussie. Redirection...';
         this.messageType = 'success';
 
-        const role = res.user?.role;
-        console.log('🟢 Utilisateur connecté avec rôle :', role);
-
         setTimeout(() => {
-          switch (role) {
+          switch (res.user.role) {
             case 'admin':
               this.router.navigate(['/admin']);
               break;
@@ -51,7 +49,7 @@ export class LoginComponent {
               this.router.navigate(['/dashboard']);
               break;
             default:
-              this.router.navigate(['/']);
+              this.router.navigate(['/login']);
               break;
           }
         }, 500);

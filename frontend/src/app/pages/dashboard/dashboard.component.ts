@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { Course, CourseService } from 'src/app/services/course.service';
-import { UserService } from 'src/app/services/user.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
@@ -13,7 +12,6 @@ interface User {
   role: string;
   selectedCourses: string[];
 }
-
 
 @Component({
   selector: 'app-dashboard',
@@ -36,40 +34,42 @@ export class DashboardComponent implements OnInit {
 
   ngOnInit(): void {
     const userId = this.auth.getUserId();
+
     if (!userId) {
-      console.error('Utilisateur non connecté.');
+      console.error('❌ Utilisateur non connecté.');
       this.router.navigate(['/login']);
       return;
     }
 
+    // 🔄 Charger les infos utilisateur
     this.http.get<User>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
         this.user = user;
-        this.isProf = user.role === 'teacher'; // ✅ Vérification du rôle
+        this.isProf = user.role === 'teacher';
 
-        // Récupérer tous les cours
+        // 📚 Charger tous les cours
         this.courseService.getCourses().subscribe(allCourses => {
-          // Cours sélectionnés par l'utilisateur
+          // 🎯 Filtrer les cours sélectionnés par l'utilisateur
           this.courses = allCourses.filter(course =>
             user.selectedCourses?.includes(course._id ?? '')
           );
 
-          // Si prof, stocker aussi tous les cours
+          // 👨‍🏫 Si prof, afficher tous les cours
           if (this.isProf) {
             this.allCourses = allCourses;
           }
         });
 
-        // Si prof, charger tous les utilisateurs
+        // 👥 Si prof, charger tous les utilisateurs
         if (this.isProf) {
           this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
             next: users => this.allUsers = users,
-            error: err => console.error('Erreur chargement des utilisateurs :', err)
+            error: err => console.error('❌ Erreur chargement utilisateurs :', err)
           });
         }
       },
       error: err => {
-        console.error('Erreur utilisateur :', err);
+        console.error('❌ Erreur récupération utilisateur :', err);
         this.router.navigate(['/login']);
       }
     });
@@ -80,18 +80,16 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
+  // 🔎 Récupération du nom complet du professeur
   getTeacherName(course: Course): string {
     const teacher = course.teacherId;
+
     if (teacher && typeof teacher === 'object') {
-      if ('firstname' in teacher && 'lastname' in teacher) {
-        // @ts-ignore
-        return `${teacher.name} ${teacher.surname}`;
-      }
-      if ('name' in teacher && 'surname' in teacher) {
-        return `${teacher.name} ${teacher.surname}`;
-      }
+      const name = (teacher as any).name;
+      const surname = (teacher as any).surname;
+      if (name && surname) return `${name} ${surname}`;
     }
+
     return `(Prof inconnu: ${teacher})`;
   }
-
 }

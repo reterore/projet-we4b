@@ -23,12 +23,12 @@ router.post('/login', async (req, res) => {
 
         // Créer JWT
         const token = jwt.sign(
-            { userId: user._id, role: user.role }, // 👈 Bien inclure le rôle
+            { userId: user._id, role: user.role },
             process.env.JWT_SECRET || 'SECRET',
             { expiresIn: '1d' }
         );
 
-        // Réponse avec token et infos utiles
+        // Réponse
         res.json({
             token,
             user: {
@@ -54,16 +54,13 @@ router.post('/register', async (req, res) => {
             return res.status(400).json({ error: 'Tous les champs sont requis' });
         }
 
-        // Vérifier si l'email existe déjà
         const existingUser = await User.findOne({ email });
         if (existingUser) {
             return res.status(409).json({ error: 'Utilisateur déjà existant' });
         }
 
-        // Hasher le mot de passe
         const passwordHash = await bcrypt.hash(password, 10);
 
-        // Créer et sauvegarder
         const newUser = new User({ name, surname, email, passwordHash, role });
         await newUser.save();
 
