@@ -25,3 +25,31 @@ router.get('/course/:courseId', async (req, res) => {
 });
 
 module.exports = router;
+// PUT /api/modules/:id
+router.put('/:id', async (req, res) => {
+    try {
+        const updated = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updated);
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur modification module' });
+    }
+});
+
+// DELETE /api/modules/:id
+router.delete('/:id', async (req, res) => {
+    try {
+        await Module.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Module supprimé' });
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur suppression module' });
+    }
+});
+
+router.delete('/:id', async (req, res) => {
+    try {
+        await Module.findByIdAndDelete(req.params.id);
+        res.json({ message: 'Module supprimé' });
+    } catch (err) {
+        res.status(500).json({ error: 'Erreur suppression module' });
+    }
+});

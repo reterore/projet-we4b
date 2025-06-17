@@ -17,6 +17,9 @@ export class CourseDetailComponent implements OnInit {
   showModuleModal = false;
   newModuleTitle = '';
   isProf = false;
+  editingModuleId: string | null = null;
+  editModuleTitle: string = '';
+
 
   constructor(
     private route: ActivatedRoute,
@@ -62,5 +65,37 @@ export class CourseDetailComponent implements OnInit {
   toggleModule(moduleId: string) {
     this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
   }
+  startEditing(module: Module) {
+    this.editingModuleId = module._id!;
+    this.editModuleTitle = module.title;
+  }
+  cancelEdit() {
+    this.editingModuleId = null;
+    this.editModuleTitle = '';
+  }
+  saveEdit(moduleId: string) {
+    if (!this.editModuleTitle.trim()) return;
+
+    this.moduleService.updateModule(moduleId, { title: this.editModuleTitle }).subscribe({
+      next: () => {
+        const mod = this.modules.find(m => m._id === moduleId);
+        if (mod) mod.title = this.editModuleTitle;
+        this.cancelEdit();
+      },
+      error: (err) => console.error('Erreur modification module', err)
+    });
+  }
+  deleteModule(moduleId: string) {
+    if (confirm('Voulez-vous vraiment supprimer ce module ?')) {
+      this.moduleService.deleteModule(moduleId).subscribe({
+        next: () => {
+          this.modules = this.modules.filter(m => m._id !== moduleId);
+          if (this.openedModuleId === moduleId) this.openedModuleId = null;
+        },
+        error: (err) => console.error('Erreur suppression module', err)
+      });
+    }
+  }
+
 
 }

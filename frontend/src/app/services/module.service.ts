@@ -23,5 +23,12 @@ export class ModuleService {
   createModule(module: Module): Observable<Module> {
     return this.http.post<Module>('http://localhost:3000/api/modules', module);
   }
+  updateModule(id: string, data: Partial<Module>) {
+    return this.http.put<Module>(`${this.apiUrl}/${id}`, data);
+  }
+
+  deleteModule(id: string) {
+    return this.http.delete(`${this.apiUrl}/${id}`);
+  }
 
 }

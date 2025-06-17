@@ -25,21 +25,27 @@
             (click)="toggleModule(m._id!)"
           >
             <strong>{{ m.title }}</strong>
-            <span>
-      <i
-        class="bi"
-        [ngClass]="openedModuleId === m._id ? 'bi-chevron-up' : 'bi-chevron-down'"
-      ></i>
-    </span>
+
+            <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
+              <button class="btn btn-outline-secondary" (click)="startEditing(m)">✏️</button>
+              <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
+            </div>
           </div>
 
           <div *ngIf="openedModuleId === m._id" class="card-body border-top">
-            <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
-            <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">
-              ➕ Ajouter un contenu
-            </button>
+            <div *ngIf="editingModuleId === m._id">
+              <input [(ngModel)]="editModuleTitle" class="form-control mb-2" />
+              <button class="btn btn-sm btn-success me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
+              <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">Annuler</button>
+            </div>
+
+            <div *ngIf="editingModuleId !== m._id">
+              <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
+              <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">➕ Ajouter un contenu</button>
+            </div>
           </div>
         </div>
+
 
       </ul>
     </div>
