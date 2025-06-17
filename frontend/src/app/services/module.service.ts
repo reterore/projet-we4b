@@ -2,10 +2,12 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
-export interface Module {
-  _id?: string;
-  courseId: string;
+export interface NewModule {
   title: string;
+  courseId: string;
+}
+export interface Module extends NewModule {
+  _id: string;
 }
 
 @Injectable({
@@ -20,7 +22,7 @@ export class ModuleService {
     return this.http.get<Module[]>(`${this.apiUrl}/course/${courseId}`);
   }
 
-  createModule(module: Module): Observable<Module> {
+  createModule(module: NewModule): Observable<Module> {
     return this.http.post<Module>('http://localhost:3000/api/modules', module);
   }
   updateModule(id: string, data: Partial<Module>) {

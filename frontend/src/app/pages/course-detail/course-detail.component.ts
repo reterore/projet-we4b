@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { ContentService, Content } from 'src/app/services/content.service';
-import { ModuleService, Module } from 'src/app/services/module.service';
+import {ModuleService, Module, NewModule} from 'src/app/services/module.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
 
@@ -42,10 +42,11 @@ export class CourseDetailComponent implements OnInit {
   addModule() {
     if (!this.newModuleTitle.trim()) return;
 
-    const newMod: Module = {
+    const newMod: NewModule = {
       title: this.newModuleTitle,
       courseId: this.courseId
     };
+
 
     this.moduleService.createModule(newMod).subscribe({
       next: (mod) => {
@@ -66,9 +67,15 @@ export class CourseDetailComponent implements OnInit {
     this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
   }
   startEditing(module: Module) {
-    this.editingModuleId = module._id!;
+    this.editingModuleId = module._id ?? null;
     this.editModuleTitle = module.title;
+
+    // 🔓 Ouvre automatiquement le module si fermé
+    if (this.openedModuleId !== module._id) {
+      this.openedModuleId = module._id;
+    }
   }
+
   cancelEdit() {
     this.editingModuleId = null;
     this.editModuleTitle = '';
