@@ -1,32 +1,80 @@
 <div class="container py-4">
   <!-- Titre du cours -->
-  <h2 class="mb-4 text-primary">📘 Détails du cours</h2>
+  <h2 class="mb-4 text-primary">Détails du cours</h2>
+  <div class="mb-3">
+    <button class="btn btn-outline-secondary" (click)="goBack()">
+      Revenir au menu
+    </button>
+  </div>
 
   <!-- Section Modules pédagogiques -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-info text-white">
-      <h5 class="mb-0">📚 Modules pédagogiques</h5>
+      <h5 class="mb-0">Modules pédagogiques</h5>
+      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter</button>
     </div>
     <div class="card-body">
-      <div *ngIf="contents.length === 0">
+      <div *ngIf="modules.length === 0">
         <p class="alert alert-warning">Aucun contenu pédagogique disponible.</p>
       </div>
-      <ul class="list-group" *ngIf="contents.length > 0">
-        <li class="list-group-item" *ngFor="let content of contents">
-          <h6>{{ content.title }}</h6>
-          <p>{{ content.description }}</p>
-          <a *ngIf="content.fileUrl" [href]="content.fileUrl" target="_blank" class="btn btn-sm btn-outline-primary">
-            📎 Voir le fichier
-          </a>
-        </li>
+      <ul class="list-group" *ngIf="modules.length > 0">
+        <div *ngFor="let m of modules" class="card mb-3">
+          <div
+            class="card-header d-flex justify-content-between align-items-center bg-light"
+            style="cursor: pointer;"
+            (click)="toggleModule(m._id!)"
+          >
+            <strong>{{ m.title }}</strong>
+
+            <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
+              <button class="btn btn-outline-secondary" (click)="startEditing(m)">✏️</button>
+              <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
+            </div>
+          </div>
+
+          <div *ngIf="openedModuleId === m._id" class="card-body border-top">
+            <div *ngIf="editingModuleId === m._id">
+              <input [(ngModel)]="editModuleTitle" class="form-control mb-2" />
+              <button class="btn btn-sm btn-success me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
+              <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">Annuler</button>
+            </div>
+
+            <div *ngIf="editingModuleId !== m._id">
+              <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
+              <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">➕ Ajouter un contenu</button>
+            </div>
+          </div>
+        </div>
+
+
       </ul>
     </div>
+
   </div>
+  <!-- Modale d'ajout -->
+  <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showModuleModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Créer un nouveau module</h5>
+          <button type="button" class="btn-close" (click)="showModuleModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <input [(ngModel)]="newModuleTitle" class="form-control" placeholder="Nom du module" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="showModuleModal = false">Annuler</button>
+          <button class="btn btn-primary" (click)="addModule()">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Section Forum -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-success text-white">
-      <h5 class="mb-0">💬 Forum de discussion</h5>
+      <h5 class="mb-0">Forum de discussion</h5>
     </div>
     <div class="card-body">
       <p>Fonctionnalité à venir : ici les étudiants et enseignants pourront échanger sur le contenu du cours.</p>
@@ -39,7 +87,7 @@
   <!-- Section Devoirs -->
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0">📝 Devoirs à rendre</h5>
+      <h5 class="mb-0">Devoirs à rendre</h5>
     </div>
     <div class="card-body">
       <p>Fonctionnalité à venir : ici seront listés les devoirs et leurs dates limites.</p>

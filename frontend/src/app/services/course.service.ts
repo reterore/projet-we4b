@@ -40,9 +40,11 @@ export class CourseService {
   }
 
   // ✏️ Modifier un cours
-  updateCourse(id: string, course: Course): Observable<Course> {
-    return this.http.put<Course>(`${this.apiUrl}/${id}`, course);
+  updateCourse(id: string, data: Partial<Course>) {
+    return this.http.put(`http://localhost:3000/api/courses/${id}`, data);
   }
+
+
 
   // 🔍 Obtenir un cours par ID
   getCourse(id: string): Observable<Course> {

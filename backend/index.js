@@ -36,6 +36,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/courses', courseRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/contents', contentRoutes);
+app.use('/api/modules', require('./routes/modules'));
 
 // ✅ Route de test
 app.get('/api/test', (req, res) => {

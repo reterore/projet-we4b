@@ -97,6 +97,15 @@
             <h5 class="card-title">{{ course.title }}</h5>
             <p class="card-text">{{ course.description }}</p>
             <a [routerLink]="['/courses', course._id]" class="btn btn-outline-primary">Accéder</a>
+            <a
+              *ngIf="isProf"
+              class="btn btn-outline-secondary ms-2"
+              [routerLink]="['/edit-course', course._id]"
+            >
+              Modifier
+            </a>
+
+
           </div>
         </div>
       </div>
@@ -145,6 +154,26 @@
         </tbody>
       </table>
     </div>
+  </div>
+</div>
+
+<div *ngIf="editingCourse" class="card mt-4 shadow">
+  <div class="card-header bg-info text-white">
+    Modifier le cours : {{ editingCourse.title }}
+  </div>
+  <div class="card-body">
+    <form (ngSubmit)="saveCourseChanges()">
+      <div class="mb-3">
+        <label for="title" class="form-label">Titre</label>
+        <input type="text" id="title" class="form-control" [(ngModel)]="courseTitle" name="title" required>
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <textarea id="description" class="form-control" [(ngModel)]="courseDescription" name="description" rows="3" required></textarea>
+      </div>
+      <button type="submit" class="btn btn-success">Enregistrer</button>
+      <button type="button" class="btn btn-secondary ms-2" (click)="cancelEditing()">Annuler</button>
+    </form>
   </div>
 </div>
 
