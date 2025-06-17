@@ -57,4 +57,10 @@ export class CourseDetailComponent implements OnInit {
   goBack() {
     this.router.navigate(['/dashboard']);
   }
+  openedModuleId: string | null = null;
+
+  toggleModule(moduleId: string) {
+    this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
+  }
+
 }

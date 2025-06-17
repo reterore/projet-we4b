@@ -18,9 +18,29 @@
         <p class="alert alert-warning">Aucun contenu pédagogique disponible.</p>
       </div>
       <ul class="list-group" *ngIf="modules.length > 0">
-        <li *ngFor="let m of modules" class="list-group-item">
-          <h6>{{ m.title }}</h6>
-        </li>
+        <div *ngFor="let m of modules" class="card mb-3">
+          <div
+            class="card-header d-flex justify-content-between align-items-center bg-light"
+            style="cursor: pointer;"
+            (click)="toggleModule(m._id!)"
+          >
+            <strong>{{ m.title }}</strong>
+            <span>
+      <i
+        class="bi"
+        [ngClass]="openedModuleId === m._id ? 'bi-chevron-up' : 'bi-chevron-down'"
+      ></i>
+    </span>
+          </div>
+
+          <div *ngIf="openedModuleId === m._id" class="card-body border-top">
+            <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
+            <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">
+              ➕ Ajouter un contenu
+            </button>
+          </div>
+        </div>
+
       </ul>
     </div>
 
