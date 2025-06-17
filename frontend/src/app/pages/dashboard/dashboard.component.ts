@@ -26,6 +26,10 @@ export class DashboardComponent implements OnInit {
   isProf: boolean = false;
   allUsers: User[] = [];
   allCourses: Course[] = [];
+  editingCourse: Course | null = null;
+  courseTitle: string = '';
+  courseDescription: string = '';
+
 
   constructor(
     private courseService: CourseService,
@@ -79,6 +83,37 @@ export class DashboardComponent implements OnInit {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
+  startEditing(course: Course) {
+    this.editingCourse = { ...course }; // On copie pour ne pas modifier directement
+    this.courseTitle = course.title;
+    this.courseDescription = course.description;
+  }
+
+  cancelEditing() {
+    this.editingCourse = null;
+    this.courseTitle = '';
+    this.courseDescription = '';
+  }
+
+  saveCourseChanges() {
+    if (!this.editingCourse) return;
+
+    const updated = {
+      title: this.courseTitle,
+      description: this.courseDescription,
+      teacherId: this.editingCourse.teacherId // ⚠️ important si requis côté backend
+    };
+
+    this.courseService.updateCourse(this.editingCourse._id!, updated).subscribe({
+      next: () => {
+        // Recharger les cours pour voir les changements
+        this.ngOnInit();
+        this.cancelEditing();
+      },
+      error: err => console.error('Erreur modification cours', err)
+    });
+  }
+
 
 
 }
