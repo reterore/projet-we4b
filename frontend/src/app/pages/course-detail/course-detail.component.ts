@@ -104,5 +104,5 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
-
+//
 }
