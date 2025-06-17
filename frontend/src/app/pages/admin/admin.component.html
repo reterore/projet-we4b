@@ -35,17 +35,22 @@
         <thead class="table-light">
         <tr>
           <th>#</th>
-          <th>Nom</th>
+          <th>Nom complet</th>
           <th>Email</th>
           <th>Rôle</th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
         <tr *ngFor="let user of users; index as i">
           <td>{{ i + 1 }}</td>
-          <td>{{ user.name }}</td>
+          <td>{{ user.name }} {{ user.surname }}</td>
           <td>{{ user.email }}</td>
           <td>{{ user.role }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-2" (click)="editUser(user._id!)">Modifier</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteUser(user._id!)">Supprimer</button>
+          </td>
         </tr>
         </tbody>
       </table>
@@ -67,6 +72,7 @@
           <th>Titre</th>
           <th>Description</th>
           <th>Enseignant</th>
+          <th>Actions</th>
         </tr>
         </thead>
         <tbody>
@@ -75,9 +81,14 @@
           <td>{{ course.title }}</td>
           <td>{{ course.description }}</td>
           <td>{{ course.teacherName || course.teacherId }}</td>
+          <td>
+            <button class="btn btn-sm btn-primary me-2" (click)="editCourse(course._id!)">Modifier</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteCourse(course._id!)">Supprimer</button>
+          </td>
         </tr>
         </tbody>
       </table>
     </div>
   </div>
+
 </div>

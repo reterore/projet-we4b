@@ -10,6 +10,8 @@ import {SelectCoursesComponent} from "./pages/select-courses/select-courses.comp
 import { AdminComponent } from './pages/admin/admin.component';
 import {ProfileComponent} from "./pages/profile/profile.component";
 import { CourseDetailComponent } from './pages/course-detail/course-detail.component';
+import {EditCourseComponent} from "./pages/edit-course/edit-course.component";
+import {EditUserComponent} from "./pages/edit-user/edit-user.component";
 
 
 const routes: Routes = [
@@ -18,13 +20,19 @@ const routes: Routes = [
   { path: 'dashboard', component: DashboardComponent, canActivate: [AuthGuard] },
   { path: 'select-courses', component: SelectCoursesComponent, canActivate: [AuthGuard] },
   { path: '', redirectTo: 'login', pathMatch: 'full' },
+  { path: 'courses', component: CoursesComponent },
   { path: 'courses/new', component: CourseFormComponent },
   { path: 'courses/edit/:id', component: CourseFormComponent },
   { path: 'courses/:id', component: CourseDetailComponent },
   { path: 'courses', component: CoursesComponent },
   { path: 'admin', component: AdminComponent },
+  { path: 'edit-user/:id', component: EditUserComponent },
+  { path: 'edit-course/:id', component: EditCourseComponent },
   { path: 'profile', component: ProfileComponent, canActivate: [AuthGuard] },
   { path: '**', redirectTo: 'login' },// route catch-all pour 404 !!! toujours laisser en dernier !!!
+
+
+
 
 ];
 
