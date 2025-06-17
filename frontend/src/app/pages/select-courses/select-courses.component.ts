@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CourseService, Course } from '../../services/course.service';
-import { AuthService } from '../../services/auth.service';
-import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { AuthService } from 'src/app/services/auth.service';
+import { Course, CourseService } from 'src/app/services/course.service';
 
 @Component({
   selector: 'app-select-courses',
@@ -29,17 +29,14 @@ export class SelectCoursesComponent implements OnInit {
       return;
     }
 
-    // 🔁 1. Récupérer l'utilisateur et ses cours sélectionnés
     this.http.get<any>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
-        this.isProf = user.role === 'teacher'; // ✅ ici
+        this.isProf = user.role === 'teacher';
         const selectedCourses = Array.isArray(user.selectedCourses)
           ? user.selectedCourses
           : [];
-
         this.selected = new Set(selectedCourses);
 
-        // 📚 2. Charger tous les cours ensuite
         this.courseService.getCourses().subscribe(data => {
           this.courses = data;
         });
@@ -52,15 +49,12 @@ export class SelectCoursesComponent implements OnInit {
   }
 
   toggleSelection(courseId: string): void {
-    if (this.isProf) return; // ⛔ Bloque les actions pour prof
     this.selected.has(courseId)
       ? this.selected.delete(courseId)
       : this.selected.add(courseId);
   }
 
   saveSelection(): void {
-    if (this.isProf) return; // ⛔ Ne rien faire si prof
-
     const userId = this.auth.getUserId();
     if (!userId) {
       this.router.navigate(['/login']);

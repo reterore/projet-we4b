@@ -1,99 +1,97 @@
-<div class="container py-4">
-  <!-- Titre du cours -->
-  <h2 class="mb-4 text-primary">Détails du cours</h2>
-  <div class="mb-3">
-    <button class="btn btn-outline-secondary" (click)="goBack()">
-      Revenir au menu
-    </button>
-  </div>
+<div class="container mt-5 pt-5">
+    <div class="card shadow-lg border-0 p-4">
 
-  <!-- Section Modules pédagogiques -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0">Modules pédagogiques</h5>
-      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter</button>
-    </div>
-    <div class="card-body">
-      <div *ngIf="modules.length === 0">
-        <p class="alert alert-warning">Aucun contenu pédagogique disponible.</p>
-      </div>
-      <ul class="list-group" *ngIf="modules.length > 0">
-        <div *ngFor="let m of modules" class="card mb-3">
-          <div
-            class="card-header d-flex justify-content-between align-items-center bg-light"
-            style="cursor: pointer;"
-            (click)="toggleModule(m._id!)"
-          >
-            <strong>{{ m.title }}</strong>
+        <!-- Titre du cours + Bouton retour -->
+        <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap">
+            <h2 class="fw-bold display-6 text-gradient m-0">
+                {{ course?.title || 'Titre du cours' }}
+            </h2>
+            <button class="btn btn-outline-secondary px-4 py-2 mt-2 mt-md-0" (click)="goBack()">↩ Revenir au menu</button>
+        </div>
 
-            <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
-              <button class="btn btn-outline-secondary" (click)="startEditing(m)">✏️</button>
-              <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
-            </div>
-          </div>
-
-          <div *ngIf="openedModuleId === m._id" class="card-body border-top">
-            <div *ngIf="editingModuleId === m._id">
-              <input [(ngModel)]="editModuleTitle" class="form-control mb-2" />
-              <button class="btn btn-sm btn-success me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
-              <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">Annuler</button>
+        <!-- Modules pédagogiques -->
+        <div class="card shadow-sm border-0 mb-5">
+            <div class="card-header bg-primary bg-gradient text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Modules pédagogiques</h5>
+                <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Nouveau</button>
             </div>
 
-            <div *ngIf="editingModuleId !== m._id">
-              <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
-              <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">➕ Ajouter un contenu</button>
+            <div class="card-body px-4 pt-4 bg-light-subtle">
+                <div *ngIf="modules.length === 0" class="alert alert-warning text-center">
+                    Aucun contenu pédagogique disponible.
+                </div>
+
+                <div *ngFor="let m of modules" class="mb-4 pb-3 border-bottom">
+                    <div class="card shadow-sm border-0 bg-white">
+                        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center"
+                             style="cursor: pointer;" (click)="toggleModule(m._id!)">
+                            <strong class="fs-5">{{ m.title }}</strong>
+
+                            <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
+                                <button class="btn btn-outline-primary" (click)="startEditing(m)">✏️</button>
+                                <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
+                            </div>
+                        </div>
+
+                        <div *ngIf="openedModuleId === m._id" class="card-body border-top mt-3">
+                            <div *ngIf="editingModuleId === m._id">
+                                <input [(ngModel)]="editModuleTitle" class="form-control mb-3" />
+                                <div class="text-end">
+                                    <button class="btn btn-success btn-sm me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
+                                    <button class="btn btn-secondary btn-sm" (click)="cancelEdit()">Annuler</button>
+                                </div>
+                            </div>
+
+                            <div *ngIf="editingModuleId !== m._id">
+                                <p class="text-muted fst-italic">Aucun contenu dans ce module pour le moment.</p>
+                                <button *ngIf="isProf" class="btn btn-outline-primary btn-sm">➕ Ajouter un contenu</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
-          </div>
         </div>
 
-
-      </ul>
-    </div>
-
-  </div>
-  <!-- Modale d'ajout -->
-  <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showModuleModal">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Créer un nouveau module</h5>
-          <button type="button" class="btn-close" (click)="showModuleModal = false"></button>
+        <!-- Modal ajout module -->
+        <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showModuleModal">
+            <div class="modal-dialog">
+                <div class="modal-content border-0 shadow">
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Créer un nouveau module</h5>
+                        <button type="button" class="btn-close" (click)="showModuleModal = false"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input [(ngModel)]="newModuleTitle" class="form-control" placeholder="Nom du module" />
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" (click)="showModuleModal = false">Annuler</button>
+                        <button class="btn btn-primary" (click)="addModule()">Valider</button>
+                    </div>
+                </div>
+            </div>
         </div>
-        <div class="modal-body">
-          <input [(ngModel)]="newModuleTitle" class="form-control" placeholder="Nom du module" />
+
+        <!-- Forum -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-success text-white">
+                <h5 class="mb-0">Forum de discussion</h5>
+            </div>
+            <div class="card-body bg-light">
+                <p class="mb-0">Fonctionnalité à venir : ici les étudiants et enseignants pourront échanger sur le contenu du cours.</p>
+                <div class="alert alert-secondary mt-3">🔧 En cours de développement…</div>
+            </div>
         </div>
-        <div class="modal-footer">
-          <button class="btn btn-secondary" (click)="showModuleModal = false">Annuler</button>
-          <button class="btn btn-primary" (click)="addModule()">Valider</button>
+
+        <!-- Devoirs -->
+        <div class="card shadow-sm border-0 mb-4">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="mb-0">Devoirs à rendre</h5>
+            </div>
+            <div class="card-body bg-light">
+                <p class="mb-0">Fonctionnalité à venir : ici seront listés les devoirs et leurs dates limites.</p>
+                <div class="alert alert-secondary mt-3">🔧 En cours de développement…</div>
+            </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-
-  <!-- Section Forum -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-success text-white">
-      <h5 class="mb-0">Forum de discussion</h5>
     </div>
-    <div class="card-body">
-      <p>Fonctionnalité à venir : ici les étudiants et enseignants pourront échanger sur le contenu du cours.</p>
-      <div class="alert alert-secondary">
-        🔧 En cours de développement…
-      </div>
-    </div>
-  </div>
-
-  <!-- Section Devoirs -->
-  <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-warning text-dark">
-      <h5 class="mb-0">Devoirs à rendre</h5>
-    </div>
-    <div class="card-body">
-      <p>Fonctionnalité à venir : ici seront listés les devoirs et leurs dates limites.</p>
-      <div class="alert alert-secondary">
-        🔧 En cours de développement…
-      </div>
-    </div>
-  </div>
 </div>

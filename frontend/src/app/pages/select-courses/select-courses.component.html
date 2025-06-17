@@ -18,7 +18,6 @@
                   [disabled]="isProf"
                   (change)="toggleSelection(course._id!)"
                 />
-
                 <label class="form-check-label fw-bold fs-5 mb-0" [for]="'course-' + course._id">
                   {{ course.title }}
                 </label>
@@ -42,9 +41,19 @@
 
       <!-- Boutons -->
       <div class="d-flex justify-content-end mt-4">
-        <button class="btn btn-primary me-2" (click)="saveSelection()">Enregistrer</button>
-        <button class="btn btn-outline-secondary" routerLink="/dashboard">↩ Retour au tableau de bord</button>
+        <button
+          *ngIf="!isProf"
+          class="btn btn-primary me-2"
+          (click)="saveSelection()"
+        >
+          Enregistrer
+        </button>
+
+        <button class="btn btn-outline-secondary" routerLink="/dashboard">
+          ↩ Retour au tableau de bord
+        </button>
       </div>
+
     </div>
   </div>
 </div>

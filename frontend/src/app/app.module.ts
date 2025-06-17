@@ -18,6 +18,7 @@ import { EditCourseComponent } from './pages/edit-course/edit-course.component';
 import { CourseFormComponent } from './pages/course-form/course-form.component'; // si tu l’as
 import { SelectCoursesComponent } from './pages/select-courses/select-courses.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
+import { CreateCourseComponent } from './pages/create-course/create-course.component';
 
 @NgModule({
   declarations: [
@@ -34,7 +35,8 @@ import { UserListComponent } from './pages/user-list/user-list.component';
     EditUserComponent,
     EditCourseComponent,
     CourseFormComponent,
-    UserListComponent
+    UserListComponent,
+    CreateCourseComponent
   ],
   imports: [
     BrowserModule,

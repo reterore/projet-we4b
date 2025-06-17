@@ -1,42 +1,99 @@
 import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContentService, Content } from 'src/app/services/content.service';
-import {ModuleService, Module, NewModule} from 'src/app/services/module.service';
+import { ModuleService, Module, NewModule } from 'src/app/services/module.service';
 import { AuthService } from 'src/app/services/auth.service';
-import { Router } from '@angular/router';
-
+import { CourseService, Course } from 'src/app/services/course.service'; // 👈 ajout
 @Component({
   selector: 'app-course-detail',
   templateUrl: './course-detail.component.html',
   styleUrls: ['./course-detail.component.css']
 })
 export class CourseDetailComponent implements OnInit {
-  contents: Content[] = [];
   courseId!: string;
+  course?: Course; // 👈 ajouté
   modules: Module[] = [];
+  contents: Content[] = [];
+
   showModuleModal = false;
   newModuleTitle = '';
   isProf = false;
+
+  openedModuleId: string | null = null;
   editingModuleId: string | null = null;
   editModuleTitle: string = '';
 
-
   constructor(
-    private route: ActivatedRoute,
-    private contentService: ContentService,
-    private moduleService: ModuleService,
-    private auth: AuthService,
-    private router: Router
-) {}
+      private route: ActivatedRoute,
+      private contentService: ContentService,
+      private moduleService: ModuleService,
+      private courseService: CourseService, // 👈 injecté
+      private auth: AuthService,
+      private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id')!;
     const user = this.auth.getUser();
     this.isProf = user?.role === 'teacher';
 
+    // 🔽 Charger les infos du cours
+    this.courseService.getCourse(this.courseId).subscribe({
+      next: c => this.course = c,
+      error: err => {
+        console.error('Erreur chargement cours', err);
+        this.router.navigate(['/dashboard']);
+      }
+    });
+
+    // 🔽 Charger les modules du cours
     this.moduleService.getModulesByCourse(this.courseId).subscribe(mods => {
       this.modules = mods;
     });
+  }
+
+  goBack() {
+    this.router.navigate(['/dashboard']);
+  }
+
+  toggleModule(moduleId: string) {
+    this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
+  }
+
+  startEditing(module: Module) {
+    this.editingModuleId = module._id ?? null;
+    this.editModuleTitle = module.title;
+    this.openedModuleId = module._id;
+  }
+
+  cancelEdit() {
+    this.editingModuleId = null;
+    this.editModuleTitle = '';
+  }
+
+  saveEdit(moduleId: string) {
+    if (!this.editModuleTitle.trim()) return;
+
+    this.moduleService.updateModule(moduleId, { title: this.editModuleTitle }).subscribe({
+      next: () => {
+        const mod = this.modules.find(m => m._id === moduleId);
+        if (mod) mod.title = this.editModuleTitle;
+        this.cancelEdit();
+      },
+      error: err => console.error('Erreur modification module', err)
+    });
+  }
+
+  deleteModule(moduleId: string) {
+    if (confirm('Voulez-vous vraiment supprimer ce module ?')) {
+      this.moduleService.deleteModule(moduleId).subscribe({
+        next: () => {
+          this.modules = this.modules.filter(m => m._id !== moduleId);
+          if (this.openedModuleId === moduleId) this.openedModuleId = null;
+        },
+        error: err => console.error('Erreur suppression module', err)
+      });
+    }
   }
 
   addModule() {
@@ -47,62 +104,13 @@ export class CourseDetailComponent implements OnInit {
       courseId: this.courseId
     };
 
-
     this.moduleService.createModule(newMod).subscribe({
-      next: (mod) => {
-        console.log('✅ Nouveau module ajouté :', mod); // <-- Ajoute ça pour vérif
-        this.modules.push(mod);                         // <-- Très important
+      next: mod => {
+        this.modules.push(mod);
         this.newModuleTitle = '';
         this.showModuleModal = false;
       },
-      error: (err) => console.error('Erreur création module', err)
+      error: err => console.error('Erreur création module', err)
     });
   }
-  goBack() {
-    this.router.navigate(['/dashboard']);
-  }
-  openedModuleId: string | null = null;
-
-  toggleModule(moduleId: string) {
-    this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
-  }
-  startEditing(module: Module) {
-    this.editingModuleId = module._id ?? null;
-    this.editModuleTitle = module.title;
-
-    // 🔓 Ouvre automatiquement le module si fermé
-    if (this.openedModuleId !== module._id) {
-      this.openedModuleId = module._id;
-    }
-  }
-
-  cancelEdit() {
-    this.editingModuleId = null;
-    this.editModuleTitle = '';
-  }
-  saveEdit(moduleId: string) {
-    if (!this.editModuleTitle.trim()) return;
-
-    this.moduleService.updateModule(moduleId, { title: this.editModuleTitle }).subscribe({
-      next: () => {
-        const mod = this.modules.find(m => m._id === moduleId);
-        if (mod) mod.title = this.editModuleTitle;
-        this.cancelEdit();
-      },
-      error: (err) => console.error('Erreur modification module', err)
-    });
-  }
-  deleteModule(moduleId: string) {
-    if (confirm('Voulez-vous vraiment supprimer ce module ?')) {
-      this.moduleService.deleteModule(moduleId).subscribe({
-        next: () => {
-          this.modules = this.modules.filter(m => m._id !== moduleId);
-          if (this.openedModuleId === moduleId) this.openedModuleId = null;
-        },
-        error: (err) => console.error('Erreur suppression module', err)
-      });
-    }
-  }
-
-//
 }

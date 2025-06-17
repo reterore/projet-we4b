@@ -12,9 +12,8 @@ export interface Course {
   _id?: string;
   title: string;
   description: string;
-  teacherId: string | Teacher;  // Peut être l'ID ou un objet selon le contexte
+  teacherId: string | Teacher;
 }
-
 
 @Injectable({
   providedIn: 'root'
@@ -24,29 +23,22 @@ export class CourseService {
 
   constructor(private http: HttpClient) {}
 
-  // 📚 Récupérer tous les cours
   getCourses(): Observable<Course[]> {
     return this.http.get<Course[]>(this.apiUrl);
   }
 
-  // ➕ Créer un cours
   createCourse(course: Course): Observable<Course> {
     return this.http.post<Course>(this.apiUrl, course);
   }
 
-  // 🗑️ Supprimer un cours
   deleteCourse(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // ✏️ Modifier un cours
-  updateCourse(id: string, data: Partial<Course>) {
-    return this.http.put(`http://localhost:3000/api/courses/${id}`, data);
+  updateCourse(id: string, data: Partial<Course>): Observable<Course> {
+    return this.http.put<Course>(`${this.apiUrl}/${id}`, data);
   }
 
-
-
-  // 🔍 Obtenir un cours par ID
   getCourse(id: string): Observable<Course> {
     return this.http.get<Course>(`${this.apiUrl}/${id}`);
   }
@@ -59,5 +51,8 @@ export class CourseService {
     return `(ID: ${teacher})`;
   }
 
+  // Optionnel si besoin
+  getCoursesByTeacher(teacherId: string): Observable<Course[]> {
+    return this.http.get<Course[]>(`${this.apiUrl}?teacherId=${teacherId}`);
+  }
 }
-

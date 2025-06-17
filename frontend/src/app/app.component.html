@@ -1,1 +1,24 @@
-<router-outlet></router-outlet>
+<router-outlet><!-- app.component.html -->
+  <nav class="navbar navbar-dark bg-dark fixed-top">
+    <div class="container-fluid">
+      <a class="navbar-brand" routerLink="/dashboard">🎓 Moodneuille</a>
+      <div class="dropdown">
+        <button class="btn btn-outline-light dropdown-toggle" type="button" data-bs-toggle="dropdown">
+          Mon compte
+        </button>
+        <ul class="dropdown-menu dropdown-menu-end">
+          <li><a class="dropdown-item" routerLink="/profile">Profil</a></li>
+          <li><a class="dropdown-item" href="#">Paramètres</a></li>
+          <li><hr class="dropdown-divider"></li>
+          <li><a class="dropdown-item text-danger" (click)="logout()">Déconnexion</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+
+  <div class="main-content">
+    <router-outlet></router-outlet>
+  </div>
+</router-outlet>
+
