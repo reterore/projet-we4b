@@ -10,6 +10,7 @@ interface User {
   email: string;
   role: string;
   selectedCourses: string[];
+  lastLogin?: Date;
 }
 
 @Component({
@@ -38,33 +39,43 @@ export class UserListComponent implements OnInit {
       return;
     }
 
-    // Récupération des infos utilisateur
     this.http.get<User>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
         this.currentUser = user;
         this.isProf = user.role === 'teacher';
 
-        // Si prof, charger tous les utilisateurs
         if (this.isProf) {
-          this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
-            next: users => {
-              this.users = users;
-              this.error = false;
-            },
-            error: err => {
-              console.error('❌ Erreur chargement utilisateurs :', err);
-              this.error = true;
-            }
-          });
+          this.loadAllUsers();
         } else {
-          console.warn('🚫 Accès refusé : seuls les professeurs peuvent voir la liste.');
+          console.warn('🚫 Accès refusé : seuls les enseignants peuvent voir cette page.');
           this.router.navigate(['/dashboard']);
         }
       },
       error: err => {
-        console.error('❌ Erreur utilisateur courant :', err);
+        console.error('❌ Erreur récupération utilisateur courant :', err);
         this.router.navigate(['/login']);
       }
     });
+  }
+
+  loadAllUsers(): void {
+    this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
+      next: users => {
+        this.users = users.filter(u => u.role !== 'admin');
+        this.error = false;
+      },
+      error: err => {
+        console.error('❌ Erreur chargement utilisateurs :', err);
+        this.error = true;
+      }
+    });
+  }
+
+  getTeachers(): User[] {
+    return this.users.filter(u => u.role === 'teacher');
+  }
+
+  getStudents(): User[] {
+    return this.users.filter(u => u.role === 'student');
   }
 }

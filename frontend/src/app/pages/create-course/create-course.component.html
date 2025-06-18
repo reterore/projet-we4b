@@ -1,0 +1,29 @@
+<div class="container mt-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <br>
+      <div class="card shadow border-0">
+        <div class="card-header bg-success text-white">
+          <h4 class="mb-0">Créer un nouveau cours</h4>
+        </div>
+        <div class="card-body">
+          <form [formGroup]="courseForm" (ngSubmit)="onSubmit()" *ngIf="courseForm">
+            <div class="mb-3">
+              <label class="form-label">Titre</label>
+              <input type="text" class="form-control" formControlName="title" required />
+            </div>
+
+            <div class="mb-3">
+              <label class="form-label">Description</label>
+              <textarea class="form-control" formControlName="description" rows="3"></textarea>
+            </div>
+
+            <div class="d-flex justify-content-end">
+              <button type="submit" class="btn btn-success" [disabled]="courseForm.invalid">💾 Enregistrer</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

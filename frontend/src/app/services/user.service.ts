@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { switchMap } from 'rxjs/operators';
 
 export interface User {
   _id?: string;
@@ -37,5 +38,10 @@ export class UserService {
   // 🗑️ Supprimer un utilisateur
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
+  }
+
+  // ➕ Ajouter un cours à selectedCourses sans écraser les autres
+  appendCourseToUser(userId: string, courseId: string): Observable<any> {
+    return this.http.patch(`${this.apiUrl}/${userId}/append-course`, { courseId });
   }
 }

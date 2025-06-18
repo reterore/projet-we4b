@@ -12,7 +12,8 @@ import { EditCourseComponent } from './pages/edit-course/edit-course.component';
 import { EditUserComponent } from './pages/edit-user/edit-user.component';
 import { ProfileComponent } from './pages/profile/profile.component';
 import { AdminComponent } from './pages/admin/admin.component';
-import { UserListComponent} from "./pages/user-list/user-list.component";
+import { UserListComponent } from "./pages/user-list/user-list.component";
+import {CreateCourseComponent } from './pages/create-course/create-course.component';
 
 import { AuthGuard } from './guards/auth.guard';
 
@@ -35,6 +36,8 @@ const routes: Routes = [
   { path: 'admin', component: AdminComponent, canActivate: [AuthGuard, AuthGuard] },
   { path: 'edit-user/:id', component: EditUserComponent, canActivate: [AuthGuard, AuthGuard] },
   { path: 'edit-course/:id', component: EditCourseComponent, canActivate: [AuthGuard, AuthGuard] },
+  { path: 'create-course', component: CreateCourseComponent, canActivate: [AuthGuard, AuthGuard] },
+
 
   { path: '**', redirectTo: 'login' } // !!! Toujours laisser à la fin !!!
 ];

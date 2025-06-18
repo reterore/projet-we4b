@@ -16,8 +16,14 @@ export class AppComponent implements OnInit {
     this.isProf = user?.role === 'teacher';
   }
 
+  hideNavbarRoutes = ['/login', '/register'];
+
   logout() {
     this.auth.logout();
     this.router.navigate(['/login']);
+  }
+
+  shouldShowNavbar(): boolean {
+    return !this.hideNavbarRoutes.includes(this.router.url);
   }
 }

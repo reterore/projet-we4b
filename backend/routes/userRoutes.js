@@ -4,7 +4,7 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
-// ✅ GET : un utilisateur par ID (doit précéder le GET /)
+// ✅ GET : un utilisateur par ID
 router.get('/:id', async (req, res) => {
     const userId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -21,7 +21,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// ✅ GET /api/users — Liste de tous les utilisateurs
+// ✅ GET tous les utilisateurs
 router.get('/', async (req, res) => {
     try {
         const users = await User.find().select('-passwordHash');
@@ -32,7 +32,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ✅ POST /api/users — Création d’un utilisateur
+// ✅ POST création utilisateur
 router.post('/', async (req, res) => {
     try {
         const { surname, name, email, password, role } = req.body;
@@ -69,7 +69,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ PUT /api/users/:id/select-courses — Mise à jour des cours sélectionnés
+// ✅ PUT mise à jour des cours sélectionnés
 router.put('/:id/select-courses', async (req, res) => {
     try {
         const { selectedCourses } = req.body;
@@ -91,7 +91,7 @@ router.put('/:id/select-courses', async (req, res) => {
     }
 });
 
-// ✅ PUT /api/users/:id — Mise à jour des infos utilisateur (inclut rôle)
+// ✅ PUT mise à jour infos utilisateur
 router.put('/:id', async (req, res) => {
     const { name, surname, email, role } = req.body;
 
@@ -111,19 +111,45 @@ router.put('/:id', async (req, res) => {
         console.error('❌ Erreur PUT /users/:id :', err);
         res.status(500).json({ error: 'Erreur serveur.' });
     }
+});
 
-    router.delete('/:id', async (req, res) => {
-        try {
-            const deletedUser = await User.findByIdAndDelete(req.params.id);
-            if (!deletedUser) {
-                return res.status(404).json({ error: 'Utilisateur non trouvé.' });
-            }
-            res.json({ message: 'Utilisateur supprimé avec succès.' });
-        } catch (error) {
-            console.error('❌ Erreur DELETE /users/:id :', error);
-            res.status(500).json({ error: 'Erreur lors de la suppression de l’utilisateur.' });
+// ✅ DELETE utilisateur
+router.delete('/:id', async (req, res) => {
+    try {
+        const deletedUser = await User.findByIdAndDelete(req.params.id);
+        if (!deletedUser) {
+            return res.status(404).json({ error: 'Utilisateur non trouvé.' });
         }
-    });
+        res.json({ message: 'Utilisateur supprimé avec succès.' });
+    } catch (error) {
+        console.error('❌ Erreur DELETE /users/:id :', error);
+        res.status(500).json({ error: 'Erreur lors de la suppression de l’utilisateur.' });
+    }
+});
+
+// ✅ PATCH append un cours sans écraser les autres
+router.patch('/:id/append-course', async (req, res) => {
+    const userId = req.params.id;
+    const { courseId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(userId) || !courseId) {
+        return res.status(400).json({ error: 'ID utilisateur ou courseId invalide.' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+        if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé.' });
+
+        if (!user.selectedCourses.includes(courseId)) {
+            user.selectedCourses.push(courseId);
+            await user.save();
+        }
+
+        res.status(200).json(user);
+    } catch (error) {
+        console.error('❌ Erreur PATCH /users/:id/append-course :', error);
+        res.status(500).json({ error: 'Erreur serveur lors de l’ajout du cours.' });
+    }
 });
 
 module.exports = router;

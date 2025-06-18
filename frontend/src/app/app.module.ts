@@ -20,6 +20,7 @@ import { SelectCoursesComponent } from './pages/select-courses/select-courses.co
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { CreateCourseComponent } from './pages/create-course/create-course.component';
 
+
 @NgModule({
   declarations: [
     AppComponent,

@@ -1,5 +1,6 @@
 <router-outlet><!-- app.component.html -->
-  <nav class="navbar navbar-dark bg-dark fixed-top">
+  <!-- Navbar uniquement si on n’est pas sur /login ou /register -->
+  <nav *ngIf="shouldShowNavbar()" class="navbar navbar-dark bg-dark fixed-top">
     <div class="container-fluid">
       <a class="navbar-brand" routerLink="/dashboard">🎓 Moodneuille</a>
       <div class="dropdown">
@@ -16,9 +17,10 @@
     </div>
   </nav>
 
-
-  <div class="main-content">
+  <!-- Contenu principal avec un padding pour ne pas passer sous la navbar -->
+  <div class="main-content pt-5">
     <router-outlet></router-outlet>
   </div>
+
 </router-outlet>
 
