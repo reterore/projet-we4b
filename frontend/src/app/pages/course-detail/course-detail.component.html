@@ -47,7 +47,7 @@
                     <p>{{ c.text }}</p>
                   </div>
                   <div *ngIf="c.type === 'file'">
-                    <a [href]="'http://localhost:3000/uploads/' + c.filename" target="_blank" class="btn btn-sm btn-outline-primary">
+                    <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">
                       📎 Voir le fichier
                     </a>
                   </div>

@@ -108,7 +108,15 @@
     }
 
     submitContent() {
-      if (!this.currentModuleId || !this.newContentTitle) return;
+      console.log('[submitContent] Début');
+
+      if (!this.currentModuleId || !this.newContentTitle) {
+        console.warn('[submitContent] Module ID ou titre manquant', {
+          currentModuleId: this.currentModuleId,
+          newContentTitle: this.newContentTitle
+        });
+        return;
+      }
 
       const formData = new FormData();
       formData.append('title', this.newContentTitle);
@@ -116,9 +124,19 @@
       formData.append('moduleId', this.currentModuleId);
 
       if (this.newContentType === 'text') {
+        console.log('[submitContent] Ajout de contenu texte');
         formData.append('text', this.newContentText);
-      } else if (this.newContentType === 'file' && this.selectedFile) {
-        formData.append('file', this.selectedFile);
+      } else if (this.newContentType === 'file') {
+        if (this.selectedFile) {
+          console.log('[submitContent] Ajout de fichier', this.selectedFile);
+          formData.append('file', this.selectedFile);
+        } else {
+          console.warn('[submitContent] Aucun fichier sélectionné');
+          return;
+        }
+      } else {
+        console.warn('[submitContent] Type inconnu :', this.newContentType);
+        return;
       }
 
       this.contentService.addContent(formData).subscribe({

@@ -7,11 +7,15 @@ export interface Content {
   title: string;
   type: 'text' | 'file';
   text?: string;
-  filename?: string;
-  description?: string;
-  fileUrl?: string;
-  courseId: string;
-  moduleId: string; //
+  file?: {
+    filename: string;
+    originalName: string;
+    mimeType: string;
+    size: number;
+    path: string;
+  };
+  moduleId: string;
+  createdAt?: string;
 }
 
 
@@ -25,8 +29,8 @@ export class ContentService {
   getContentsByCourse(courseId: string): Observable<Content[]> {
     return this.http.get<Content[]>(`${this.apiUrl}/course/${courseId}`);
   }
-  addContent(formData: FormData): Observable<Content> {
-    return this.http.post<Content>(this.apiUrl, formData);
+  addContent(contentData: FormData) {
+    return this.http.post<Content>('http://localhost:3000/api/contents', contentData);
   }
 
   getContentsByModule(moduleId: string): Observable<Content[]> {
