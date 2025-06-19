@@ -62,4 +62,7 @@ export class CreateCourseComponent implements OnInit {
       error: err => console.error('❌ Erreur création cours :', err)
     });
   }
+  goBack() {
+    this.router.navigate(['/dashboard']);
+  }
 }
