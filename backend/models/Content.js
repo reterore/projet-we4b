@@ -1,15 +1,18 @@
-
 const mongoose = require('mongoose');
 
 const contentSchema = new mongoose.Schema({
-    title: String,
-    description: String,
-    fileUrl: String, // chemin ou URL du fichier
-    courseId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Course',
-        required: true
-    }
+    title: { type: String, required: true },
+    type: { type: String, enum: ['text', 'file'], required: true },
+    text: { type: String }, // si type == 'text'
+    file: {
+        filename: String,
+        originalName: String,
+        mimeType: String,
+        size: Number,
+        path: String,
+    }, // si type == 'file'
+    moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },
+    createdAt: { type: Date, default: Date.now }
 });
 
 module.exports = mongoose.model('Content', contentSchema);

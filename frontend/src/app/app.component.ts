@@ -8,7 +8,7 @@ import { Router } from '@angular/router';
 })
 export class AppComponent implements OnInit {
   isProf: boolean = false;
-
+  title = 'frontend';
   constructor(private auth: AuthService, private router: Router) {}
 
   ngOnInit() {

@@ -2,13 +2,17 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
+import { Content } from './content.service'; // adapte le chemin si besoin
+
 export interface NewModule {
   title: string;
   courseId: string;
 }
 export interface Module extends NewModule {
   _id: string;
+  contents?: Content[];
 }
+
 
 @Injectable({
   providedIn: 'root'
