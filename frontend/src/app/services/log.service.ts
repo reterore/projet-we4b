@@ -9,25 +9,26 @@ export interface LogEntry {
   createdAt?: string;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class LogService {
-  private logUrl = 'http://localhost:3000/api/logs'; // ← Assure-toi que ton backend a une route POST /api/logs
+  private readonly API_URL = 'http://localhost:3000/api/logs'; // Assure-toi que cette URL est correcte
 
   constructor(private http: HttpClient) {}
 
   /**
-   * 📤 Envoie une entrée de log vers l'API Express
-   * @param entry Données à logger (userId, action, détails optionnels)
+   * Envoie un log au backend
+   * @param entry Objet contenant userId, action, et éventuellement des détails
    */
-  sendLog(entry: LogEntry): Observable<any> {
-    return this.http.post(this.logUrl, entry);
+  sendLog(entry: LogEntry): Observable<LogEntry> {
+    return this.http.post<LogEntry>(this.API_URL, entry);
   }
 
+  /**
+   * Récupère tous les logs du backend
+   */
   getAllLogs(): Observable<LogEntry[]> {
-    return this.http.get<LogEntry[]>(this.logUrl);
+    return this.http.get<LogEntry[]>(this.API_URL);
   }
-
 }

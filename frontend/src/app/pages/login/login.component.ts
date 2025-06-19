@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
-import { LogService } from 'src/app/services/log.service'; // 👈 Ajout
+import { LogService } from 'src/app/services/log.service';
 
 @Component({
   selector: 'app-login',
@@ -18,7 +18,7 @@ export class LoginComponent {
     private fb: FormBuilder,
     private auth: AuthService,
     private router: Router,
-    private logService: LogService // 👈 Injection du service de log
+    private logService: LogService
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -33,44 +33,51 @@ export class LoginComponent {
       return;
     }
 
-    this.auth.login(this.loginForm.value).subscribe({
+    const credentials = this.loginForm.value;
+
+    this.auth.login(credentials).subscribe({
       next: res => {
-        this.auth.setSession(res.token, res.user);
-        console.log('🟢 Utilisateur connecté avec rôle :', res.user.role);
+        const { token, user } = res;
+
+        if (!token || !user?._id) {
+          this.message = 'Réponse invalide du serveur.';
+          this.messageType = 'error';
+          return;
+        }
+
+        this.auth.setSession(token, user);
+        console.log('🟢 Utilisateur connecté avec rôle :', user.role);
 
         this.message = 'Connexion réussie. Redirection...';
         this.messageType = 'success';
 
-        // 📝 Enregistrement du log de connexion
+        // ✅ Log de connexion
         this.logService.sendLog({
-          userId: res.user._id,
-          action: 'login_success',
+          userId: user._id,
+          action: 'login',
           details: {
-            email: res.user.email,
-            role: res.user.role,
+            email: user.email,
+            role: user.role,
             time: new Date().toISOString()
           }
         }).subscribe({
           error: err => console.warn('⚠️ Échec enregistrement log', err)
         });
 
+        // ✅ Redirection selon rôle
         setTimeout(() => {
-          switch (res.user.role) {
-            case 'admin':
-              this.router.navigate(['/admin']);
-              break;
-            case 'teacher':
-            case 'student':
-              this.router.navigate(['/dashboard']);
-              break;
-            default:
-              this.router.navigate(['/login']);
-              break;
+          const role = user.role;
+          if (role === 'admin') {
+            this.router.navigate(['/admin']);
+          } else if (role === 'teacher' || role === 'student') {
+            this.router.navigate(['/dashboard']);
+          } else {
+            this.router.navigate(['/login']);
           }
         }, 500);
       },
       error: err => {
-        this.message = err.error?.error || 'Email ou mot de passe incorrect';
+        this.message = err.error?.error || 'Email ou mot de passe incorrect.';
         this.messageType = 'error';
         console.error('❌ Erreur de login :', err);
       }

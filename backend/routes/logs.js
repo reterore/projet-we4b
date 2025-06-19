@@ -1,32 +1,44 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
-const Logs = require('../models/Log');
 
-// POST /api/logs — Création d’un log
+const Log = require('../models/Log');
+const { LOG_ACTIONS } = require('../models/Log'); // si enum exportée
+
+// ✅ POST /api/logs — Création d’un log
 router.post('/', async (req, res) => {
     const { userId, action, details } = req.body;
 
+    // Validation basique
     if (!userId || !action) {
-        return res.status(400).json({ error: 'userId et action sont requis.' });
+        return res.status(400).json({ error: 'Les champs userId et action sont requis.' });
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ error: 'userId invalide (ObjectId attendu).' });
+    }
+
+    if (LOG_ACTIONS && !LOG_ACTIONS.includes(action)) {
+        return res.status(400).json({ error: `Action invalide. Actions autorisées : ${LOG_ACTIONS.join(', ')}` });
     }
 
     try {
-        const log = await Logs.create({ userId, action, details });
+        const log = await Log.create({ userId, action, details });
         res.status(201).json(log);
     } catch (err) {
-        console.error('❌ Erreur POST /logs :', err);
-        res.status(500).json({ error: 'Erreur lors de la création du log.' });
+        console.error('❌ Erreur lors de la création du log :', err);
+        res.status(500).json({ error: 'Erreur serveur lors de la création du log.' });
     }
 });
 
-// ✅ GET /api/logs — Récupération de tous les logs
+// ✅ GET /api/logs — Liste triée des logs
 router.get('/', async (req, res) => {
     try {
-        const logs = await Logs.find().sort({ createdAt: -1 }); // tri du plus récent au plus ancien
+        const logs = await Log.find().sort({ createdAt: -1 }).populate('userId', 'email role');
         res.status(200).json(logs);
     } catch (err) {
-        console.error('❌ Erreur GET /logs :', err);
-        res.status(500).json({ error: 'Erreur lors de la récupération des logs.' });
+        console.error('❌ Erreur lors de la récupération des logs :', err);
+        res.status(500).json({ error: 'Erreur serveur lors de la récupération des logs.' });
     }
 });
 
