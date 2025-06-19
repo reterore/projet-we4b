@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Log = require('../models/Log');
 
-// À externaliser si besoin
 const LOG_ACTIONS = ['login', 'logout', 'course_view', 'user_deleted', 'course_created', 'course_updated'];
 
 async function logAction(userId, action, details = {}) {
@@ -18,7 +17,7 @@ async function logAction(userId, action, details = {}) {
 
     try {
         await Log.create({ userId, action, details });
-        // console.log(`✅ Log enregistré : ${action} pour ${userId}`);
+        console.log(`✅ Log enregistré : ${action} pour ${userId}`);
     } catch (err) {
         console.error('❌ Erreur lors de la création du log :', err);
     }
