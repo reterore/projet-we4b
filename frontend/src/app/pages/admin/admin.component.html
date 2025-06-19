@@ -1,14 +1,3 @@
-<!-- Barre de navigation -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container-fluid">
-    <span class="navbar-brand">🎓 Admin Panel</span>
-
-    <div class="d-flex ms-auto">
-      <button class="btn btn-outline-light" (click)="logout()">Déconnexion</button>
-    </div>
-  </div>
-</nav>
-
 <!-- Contenu principal -->
 <div class="container py-4">
   <h2 class="mb-4">Interface d'administration</h2>
@@ -16,21 +5,19 @@
   <!-- Onglets de navigation -->
   <ul class="nav nav-tabs mb-3">
     <li class="nav-item">
-      <button class="nav-link" [class.active]="currentTab === 'users'" (click)="setTab('users')">
-        Utilisateurs
-      </button>
+      <button class="nav-link" [class.active]="currentTab === 'users'" (click)="setTab('users')">Utilisateurs</button>
     </li>
     <li class="nav-item">
-      <button class="nav-link" [class.active]="currentTab === 'courses'" (click)="setTab('courses')">
-        Cours
-      </button>
+      <button class="nav-link" [class.active]="currentTab === 'courses'" (click)="setTab('courses')">Cours</button>
+    </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="currentTab === 'logs'" (click)="setTab('logs')">Logs</button>
     </li>
   </ul>
 
-  <!-- Liste des utilisateurs -->
+  <!-- Utilisateurs -->
   <div *ngIf="currentTab === 'users'">
     <h4 class="mb-3">Liste des utilisateurs</h4>
-
     <div *ngIf="userError" class="alert alert-danger">Erreur lors du chargement des utilisateurs.</div>
     <div *ngIf="!userError && users.length === 0" class="alert alert-warning">Aucun utilisateur trouvé.</div>
 
@@ -61,10 +48,9 @@
     </div>
   </div>
 
-  <!-- Liste des cours -->
+  <!-- Cours -->
   <div *ngIf="currentTab === 'courses'">
     <h4 class="mb-3">Liste des cours</h4>
-
     <div *ngIf="courseError" class="alert alert-danger">Erreur lors du chargement des cours.</div>
     <div *ngIf="!courseError && courses.length === 0" class="alert alert-warning">Aucun cours disponible.</div>
 
@@ -99,4 +85,35 @@
       </table>
     </div>
   </div>
+
+  <!-- Logs -->
+  <div *ngIf="currentTab === 'logs'">
+    <h4 class="mb-3">Historique des actions</h4>
+    <div *ngIf="logError" class="alert alert-danger">Erreur lors du chargement des logs.</div>
+    <div *ngIf="!logError && logs.length === 0" class="alert alert-info">Aucun log enregistré.</div>
+
+    <div class="table-responsive">
+      <table *ngIf="!logError && logs.length > 0" class="table table-hover table-bordered">
+        <thead class="table-light">
+        <tr>
+          <th>#</th>
+          <th>Action</th>
+          <th>Email</th>
+          <th>Rôle</th>
+          <th>Date</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let log of logs; index as i">
+          <td>{{ i + 1 }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ parseDetail(log.details)?.email || '—' }}</td>
+          <td>{{ parseDetail(log.details)?.role || '—' }}</td>
+          <td>{{ parseDetail(log.details)?.time | date: 'short' || '—' }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
 </div>

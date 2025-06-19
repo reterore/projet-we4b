@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AuthService } from '../../services/auth.service';
 import { Router } from '@angular/router';
+import { LogService } from 'src/app/services/log.service'; // 👈 Ajout
 
 @Component({
   selector: 'app-login',
@@ -16,7 +17,8 @@ export class LoginComponent {
   constructor(
     private fb: FormBuilder,
     private auth: AuthService,
-    private router: Router
+    private router: Router,
+    private logService: LogService // 👈 Injection du service de log
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -33,11 +35,24 @@ export class LoginComponent {
 
     this.auth.login(this.loginForm.value).subscribe({
       next: res => {
-        this.auth.setSession(res.token, res.user); // 🔐 stocke le token + user
+        this.auth.setSession(res.token, res.user);
         console.log('🟢 Utilisateur connecté avec rôle :', res.user.role);
 
         this.message = 'Connexion réussie. Redirection...';
         this.messageType = 'success';
+
+        // 📝 Enregistrement du log de connexion
+        this.logService.sendLog({
+          userId: res.user._id,
+          action: 'login_success',
+          details: {
+            email: res.user.email,
+            role: res.user.role,
+            time: new Date().toISOString()
+          }
+        }).subscribe({
+          error: err => console.warn('⚠️ Échec enregistrement log', err)
+        });
 
         setTimeout(() => {
           switch (res.user.role) {

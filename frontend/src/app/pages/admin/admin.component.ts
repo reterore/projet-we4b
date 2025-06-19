@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { UserService, User } from 'src/app/services/user.service';
 import { CourseService, Course } from 'src/app/services/course.service';
+import { LogService, LogEntry } from 'src/app/services/log.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
@@ -12,14 +13,17 @@ import { AuthService } from '../../services/auth.service';
 export class AdminComponent implements OnInit {
   users: User[] = [];
   courses: Course[] = [];
-  currentTab: 'users' | 'courses' = 'users';
+  logs: LogEntry[] = [];
+  currentTab: 'users' | 'courses' | 'logs' = 'users';
 
   userError = false;
   courseError = false;
+  logError = false;
 
   constructor(
     private userService: UserService,
     private courseService: CourseService,
+    private logService: LogService,
     private auth: AuthService,
     private router: Router,
     private route: ActivatedRoute
@@ -28,19 +32,18 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab === 'courses' || tab === 'users') {
+      if (tab === 'users' || tab === 'courses' || tab === 'logs') {
         this.currentTab = tab;
       }
     });
 
     this.loadUsers();
     this.loadCourses();
+    this.loadLogs();
   }
 
-  setTab(tab: 'users' | 'courses'): void {
+  setTab(tab: 'users' | 'courses' | 'logs'): void {
     this.currentTab = tab;
-
-    // Optionnel : met à jour l'URL avec le paramètre de tab
     this.router.navigate([], {
       relativeTo: this.route,
       queryParams: { tab },
@@ -76,10 +79,18 @@ export class AdminComponent implements OnInit {
     });
   }
 
-  isTeacherObject(value: any): value is { name: string; surname: string } {
-    return value && typeof value === 'object' &&
-      typeof value.name === 'string' &&
-      typeof value.surname === 'string';
+  loadLogs(): void {
+    this.logService.getAllLogs().subscribe({
+      next: logs => {
+        this.logs = logs;
+        this.logError = false;
+      },
+      error: err => {
+        console.error('❌ Erreur chargement logs :', err);
+        this.logError = true;
+        this.logs = [];
+      }
+    });
   }
 
   logout(): void {
@@ -120,14 +131,30 @@ export class AdminComponent implements OnInit {
   getTeacherName(course: Course): string {
     const teacher = course.teacherId;
     if (teacher && typeof teacher === 'object') {
-      if ('firstname' in teacher && 'lastname' in teacher) {
-        // @ts-ignore
-        return `${teacher.name} ${teacher.surname}`;
-      }
       if ('name' in teacher && 'surname' in teacher) {
         return `${teacher.name} ${teacher.surname}`;
       }
     }
     return `(Prof inconnu: ${teacher})`;
   }
+
+  isTeacherObject(value: any): value is { name: string; surname: string } {
+    return typeof value === 'object' && value !== null &&
+      'name' in value && 'surname' in value;
+  }
+
+  parseDetail(details: any): { email?: string; role?: string; time?: string } | null {
+    try {
+      const parsed = typeof details === 'string' ? JSON.parse(details) : details;
+      return {
+        email: parsed?.email,
+        role: parsed?.role,
+        time: parsed?.time
+      };
+    } catch (e) {
+      console.warn('❗ Échec de parsing du détail du log :', details, e);
+      return null;
+    }
+  }
+
 }

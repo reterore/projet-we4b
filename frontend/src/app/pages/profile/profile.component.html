@@ -1,56 +1,91 @@
 <div class="container mt-5">
   <div class="row justify-content-center">
     <div class="col-md-8">
-      <div class="card shadow-lg border-0 rounded-3">
-        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-          <h4 class="mb-0">👤 Mon Profil</h4>
-          <button *ngIf="!editMode" class="btn btn-outline-light btn-sm" (click)="editMode = true">🖊️ Modifier</button>
+      <div class="card shadow border-0 rounded-4">
+        <!-- En-tête -->
+        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center px-4 py-3">
+          <h4 class="mb-0">Mon Profil</h4>
+          <button
+            *ngIf="!editMode"
+            class="btn btn-outline-light btn-sm"
+            aria-label="Modifier le profil"
+            (click)="editMode = true"
+          >
+            Modifier
+          </button>
         </div>
-        <div class="card-body">
+
+        <!-- Corps -->
+        <div class="card-body px-4 py-4">
+          <!-- Mode lecture -->
           <div *ngIf="!editMode && user; else editForm">
-            <div class="mb-3">
-              <label class="form-label fw-bold">Prénom :</label>
-              <p class="form-control-plaintext">{{ user.surname }}</p>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Prénom</label>
+              <div class="form-control-plaintext border rounded px-3 py-2 bg-light">{{ user.surname }}</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Nom</label>
+              <div class="form-control-plaintext border rounded px-3 py-2 bg-light">{{ user.name }}</div>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-semibold">Email</label>
+              <div class="form-control-plaintext border rounded px-3 py-2 bg-light">{{ user.email }}</div>
             </div>
             <div class="mb-3">
-              <label class="form-label fw-bold">Nom :</label>
-              <p class="form-control-plaintext">{{ user.name }}</p>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Email :</label>
-              <p class="form-control-plaintext">{{ user.email }}</p>
-            </div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">Rôle :</label>
-              <span class="badge bg-primary text-uppercase">{{ user.role }}</span>
+              <label class="form-label fw-semibold">Rôle</label>
+              <br>
+              <span class="badge bg-primary text-uppercase px-3 py-2">{{ user.role }}</span>
             </div>
           </div>
 
-          <!-- Formulaire de modification -->
+          <!-- Formulaire -->
           <ng-template #editForm>
-            <form (ngSubmit)="saveChanges()">
+            <form (ngSubmit)="saveChanges()" novalidate>
               <div class="mb-3">
-                <label class="form-label fw-bold">Prénom</label>
-                <input type="text" class="form-control" [(ngModel)]="editedUser.surname" name="surname" required>
+                <label class="form-label fw-semibold">Prénom</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="editedUser.surname"
+                  name="surname"
+                  placeholder="Entrez votre prénom"
+                  required
+                >
               </div>
               <div class="mb-3">
-                <label class="form-label fw-bold">Nom</label>
-                <input type="text" class="form-control" [(ngModel)]="editedUser.name" name="name" required>
+                <label class="form-label fw-semibold">Nom</label>
+                <input
+                  type="text"
+                  class="form-control"
+                  [(ngModel)]="editedUser.name"
+                  name="name"
+                  placeholder="Entrez votre nom"
+                  required
+                >
               </div>
               <div class="mb-3">
-                <label class="form-label fw-bold">Email</label>
-                <input type="email" class="form-control" [(ngModel)]="editedUser.email" name="email" required>
+                <label class="form-label fw-semibold">Email</label>
+                <input
+                  type="email"
+                  class="form-control"
+                  [(ngModel)]="editedUser.email"
+                  name="email"
+                  placeholder="exemple@domaine.com"
+                  required
+                >
               </div>
 
-              <div class="d-flex justify-content-end">
-                <button type="button" class="btn btn-secondary me-2" (click)="editMode = false">Annuler</button>
+              <div class="d-flex justify-content-end gap-2 mt-4">
+                <button type="button" class="btn btn-outline-secondary" (click)="editMode = false">Annuler</button>
                 <button type="submit" class="btn btn-primary">Enregistrer</button>
               </div>
             </form>
           </ng-template>
         </div>
-        <div class="card-footer text-end">
-          <a routerLink="/dashboard" class="btn btn-outline-secondary">Retour</a>
+
+        <!-- Pied de carte -->
+        <div class="card-footer bg-white text-end px-4 py-3 border-0">
+          <a routerLink="/dashboard" class="btn btn-outline-dark">Retour au tableau de bord</a>
         </div>
       </div>
     </div>
