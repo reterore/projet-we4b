@@ -5,6 +5,16 @@ import { ModuleService, Module, NewModule } from 'src/app/services/module.servic
 import { AuthService } from 'src/app/services/auth.service';
 import { CourseService, Course } from 'src/app/services/course.service';
 import { ForumService, Forum, Message } from 'src/app/services/forum.service';
+import { Assignment, AssignmentService, Submission } from 'src/app/services/assignment.service';
+
+type SubmissionWithTemp = Submission & {
+  tempGrade?: number;
+  tempComment?: string;
+};
+
+type AssignmentWithTemp = Assignment & {
+  submissions?: SubmissionWithTemp[];
+};
 import { LogService } from 'src/app/services/log.service';
 
 @Component({
@@ -37,20 +47,30 @@ export class CourseDetailComponent implements OnInit {
   editedContentTitle = '';
   editedContentText = '';
 
+  assignments: AssignmentWithTemp[] = [];
+  selectedAssignmentFile: File | null = null;
+  showAddAssignmentModal = false;
+
   forums: (Forum & { newMessage?: string })[] = [];
   newForumTitle = '';
 
   showForumModal = false;
+
+  newAssignmentTitle = '';
+  newAssignmentDescription = '';
+  newAssignmentDueDate: string = '';
+
 
   constructor(
     private route: ActivatedRoute,
     private contentService: ContentService,
     private moduleService: ModuleService,
     private courseService: CourseService,
-    private auth: AuthService,
+    public auth: AuthService,
     private router: Router,
     private forumService: ForumService,
-    private logService: LogService
+    private logService: LogService,
+    private assignmentService: AssignmentService
   ) {}
 
   ngOnInit(): void {
@@ -84,6 +104,30 @@ export class CourseDetailComponent implements OnInit {
         console.error('Erreur chargement cours', err);
         this.router.navigate(['/dashboard']);
       }
+    });
+
+    this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
+      next: (a) => {
+        this.assignments = a.map(assign => ({
+          ...assign,
+          submissions: assign.submissions?.map(sub => ({
+            ...sub,
+            tempGrade: undefined,
+            tempComment: ''
+          }))
+        }));
+      },
+      error: (err) => console.error('Erreur chargement devoirs', err)
+    });
+
+    this.moduleService.getModulesByCourse(this.courseId).subscribe(mods => {
+      this.modules = mods;
+      this.loadContentsForModules();
+    });
+
+    this.forumService.getForumsByCourse(this.courseId).subscribe({
+      next: forums => this.forums = forums,
+      error: err => console.error('Erreur chargement forums', err)
     });
   }
 
@@ -261,6 +305,35 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
+  gradeSubmission(assignmentId: string, submission: any) {
+    const grade = Number(submission.tempGrade);
+    const comment = submission.tempComment;
+
+    // Vérification de la validité de la note
+    if (isNaN(grade) || grade < 0 || grade > 20) {
+      alert("❌ Note invalide. Elle doit être comprise entre 0 et 20.");
+      return;
+    }
+
+    this.assignmentService.gradeSubmission(assignmentId, submission._id, {
+      grade,
+      comment
+    }).subscribe({
+      next: () => {
+        alert('✅ Note enregistrée avec succès.');
+        // Rafraîchir les devoirs après notation
+        this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
+          next: (a) => this.assignments = a
+        });
+      },
+      error: err => {
+        console.error('Erreur enregistrement note', err);
+        alert('❌ Erreur lors de l\'enregistrement de la note.');
+      }
+    });
+  }
+
+
 
   sendMessageToForum(forum: Forum & { newMessage?: string }) {
     const user = this.auth.getUser();
@@ -280,4 +353,77 @@ export class CourseDetailComponent implements OnInit {
       error: err => console.error('Erreur envoi message', err)
     });
   }
+  onAssignmentFileSelected(event: any) {
+    this.selectedAssignmentFile = event.target.files[0];
+  }
+
+  submitAssignment(assignmentId: string) {
+    if (!this.selectedAssignmentFile) return;
+
+    const formData = new FormData();
+    formData.append('studentId', this.auth.getUser()._id);
+    formData.append('studentName', `${this.auth.getUser().surname} ${this.auth.getUser().name}`);
+    formData.append('file', this.selectedAssignmentFile);
+
+    this.assignmentService.submitAssignment(assignmentId, formData).subscribe({
+      next: () => {
+        alert('✅ Devoir soumis avec succès');
+        this.selectedAssignmentFile = null;
+        // Rechargement pour afficher la soumission
+        this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
+          next: (a) => this.assignments = a
+        });
+      },
+      error: (err) => {
+        console.error('Erreur soumission devoir', err);
+        alert('❌ Échec de la soumission');
+      }
+    });
+  }
+  cancelAddAssignment() {
+    this.showAddAssignmentModal = false;
+    this.newAssignmentTitle = '';
+    this.newAssignmentDescription = '';
+    this.newAssignmentDueDate = '';
+  }
+
+  submitNewAssignment() {
+    if (!this.newAssignmentTitle.trim() || !this.newAssignmentDueDate) return;
+
+    const newAssignment = {
+      title: this.newAssignmentTitle.trim(),
+      description: this.newAssignmentDescription.trim(),
+      dueDate: this.newAssignmentDueDate,
+      courseId: this.courseId
+    };
+
+    this.assignmentService.createAssignment(newAssignment).subscribe({
+      next: (created) => {
+        this.assignments.push(created);
+        this.cancelAddAssignment();
+        alert('✅ Devoir créé avec succès.');
+      },
+      error: (err) => {
+        console.error('Erreur création devoir', err);
+        alert('❌ Erreur lors de la création du devoir.');
+      }
+    });
+
+  }
+  deleteAssignment(assignmentId: string) {
+    if (!confirm('Voulez-vous vraiment supprimer ce devoir ?')) return;
+
+    this.assignmentService.deleteAssignment(assignmentId).subscribe({
+      next: () => {
+        this.assignments = this.assignments.filter(a => a._id !== assignmentId);
+        alert('✅ Devoir supprimé avec succès.');
+      },
+      error: (err) => {
+        console.error('Erreur suppression devoir', err);
+        alert('❌ Échec de la suppression.');
+      }
+    });
+  }
+
+
 }
