@@ -207,18 +207,33 @@
             <li class="list-group-item" *ngFor="let s of a.submissions">
               👤 {{ s.studentName }} |
               📎 <a [href]="'http://localhost:3000/uploads/assignments/' + s.file.filename" target="_blank">Voir le fichier</a>
+
               <div *ngIf="!s.grade">
+                <!-- notation initiale -->
                 <input [(ngModel)]="s.tempGrade" type="number" min="0" max="20" placeholder="Note" class="form-control-sm me-2" style="width: 70px;">
                 <input [(ngModel)]="s.tempComment" placeholder="Commentaire" class="form-control-sm me-2">
                 <button class="btn btn-success btn-sm" (click)="gradeSubmission(a._id, s)">Noter</button>
               </div>
+
               <div *ngIf="s.grade">
-                ✅ Note : <strong>{{ s.grade }}/20</strong>
-                <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+                <!-- ✅ Partie à remplacer -->
+                <div *ngIf="!s.editing">
+                  ✅ Note : <strong>{{ s.grade }}/20</strong>
+                  <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+                  <button class="btn btn-outline-secondary btn-sm ms-2" (click)="s.editing = true">✏ Modifier</button>
+                </div>
+
+                <div *ngIf="s.editing">
+                  <input [(ngModel)]="s.tempGrade" type="number" min="0" max="20" placeholder="Note" class="form-control-sm me-2" style="width: 70px;">
+                  <input [(ngModel)]="s.tempComment" placeholder="Commentaire" class="form-control-sm me-2">
+                  <button class="btn btn-primary btn-sm" (click)="updateGrade(a._id, s)">💾 Enregistrer</button>
+                  <button class="btn btn-secondary btn-sm" (click)="s.editing = false">❌ Annuler</button>
+                </div>
               </div>
             </li>
           </ul>
         </div>
+
       </div>
     </div>
   </div>

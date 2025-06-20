@@ -8,15 +8,17 @@ import { ForumService, Forum, Message } from 'src/app/services/forum.service';
 import { Assignment, AssignmentService, Submission } from 'src/app/services/assignment.service';
 declare var bootstrap: any;
 
-type SubmissionWithTemp = Submission & {
-  tempGrade?: number;
-  tempComment?: string;
+type AssignmentWithTemp = Assignment & {
+  submissions?: ExtendedSubmission[];
 };
 
-type AssignmentWithTemp = Assignment & {
-  submissions?: SubmissionWithTemp[];
+type ExtendedSubmission = Submission & {
+  tempGrade?: number;
+  tempComment?: string;
+  editing?: boolean;
 };
 import { LogService } from 'src/app/services/log.service';
+
 
 @Component({
   selector: 'app-course-detail',
@@ -116,12 +118,18 @@ export class CourseDetailComponent implements OnInit {
       next: (a) => {
         this.assignments = a.map(assign => ({
           ...assign,
-          submissions: assign.submissions?.map(sub => ({
-            ...sub,
-            tempGrade: undefined,
-            tempComment: ''
-          }))
+          submissions: assign.submissions?.map(sub => {
+            const extendedSub: ExtendedSubmission = {
+              ...sub,
+              tempGrade: sub.grade ?? undefined,
+              tempComment: sub.comment ?? '',
+              editing: false
+            };
+            return extendedSub;
+          })
+
         }));
+
       },
       error: (err) => console.error('Erreur chargement devoirs', err)
     });
@@ -306,7 +314,6 @@ export class CourseDetailComponent implements OnInit {
 
     this.assignmentService.updateSubmission(assignmentId, submissionId, formData).subscribe({
       next: () => {
-        alert('✅ Soumission mise à jour.');
         this.ngOnInit(); // recharge les données
       },
       error: err => {
@@ -349,7 +356,6 @@ export class CourseDetailComponent implements OnInit {
       comment
     }).subscribe({
       next: () => {
-        alert('✅ Note enregistrée avec succès.');
         // Rafraîchir les devoirs après notation
         this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
           next: (a) => this.assignments = a
@@ -396,7 +402,6 @@ export class CourseDetailComponent implements OnInit {
 
     this.assignmentService.submitAssignment(assignmentId, formData).subscribe({
       next: () => {
-        alert('✅ Devoir soumis avec succès');
         this.selectedAssignmentFile = null;
         // Rechargement pour afficher la soumission
         this.assignmentService.getAssignmentsByCourse(this.courseId).subscribe({
@@ -430,7 +435,6 @@ export class CourseDetailComponent implements OnInit {
       next: (created) => {
         this.assignments.push(created);
         this.cancelAddAssignment();
-        alert('✅ Devoir créé avec succès.');
       },
       error: (err) => {
         console.error('Erreur création devoir', err);
@@ -445,7 +449,6 @@ export class CourseDetailComponent implements OnInit {
     this.assignmentService.deleteAssignment(assignmentId).subscribe({
       next: () => {
         this.assignments = this.assignments.filter(a => a._id !== assignmentId);
-        alert('✅ Devoir supprimé avec succès.');
       },
       error: (err) => {
         console.error('Erreur suppression devoir', err);
@@ -478,7 +481,6 @@ export class CourseDetailComponent implements OnInit {
     this.assignmentService.updateSubmission(this.selectedAssignmentId, this.selectedSubmissionId, formData)
       .subscribe({
         next: () => {
-          alert('✅ Fichier mis à jour avec succès');
           window.location.reload(); // ou rafraîchissement partiel
         },
         error: () => alert('❌ Échec de la mise à jour.')
@@ -487,6 +489,25 @@ export class CourseDetailComponent implements OnInit {
     const modal = document.getElementById('editSubmissionModal');
     if (modal) bootstrap.Modal.getInstance(modal)?.hide();
   }
+  updateGrade(assignmentId: string, submission: any) {
+    const payload = {
+      grade: submission.tempGrade,
+      comment: submission.tempComment
+    };
+
+    this.assignmentService.gradeSubmission(assignmentId, submission._id, payload).subscribe({
+      next: () => {
+        submission.grade = payload.grade;
+        submission.comment = payload.comment;
+        submission.editing = false;
+      },
+      error: (err) => {
+        console.error('Erreur modification de la note', err);
+        alert('❌ Échec de la modification.');
+      }
+    });
+  }
+
 
 
 }
