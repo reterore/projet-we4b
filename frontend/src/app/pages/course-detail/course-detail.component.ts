@@ -56,7 +56,9 @@
       // 🔽 Charger les modules du cours
       this.moduleService.getModulesByCourse(this.courseId).subscribe(mods => {
         this.modules = mods;
+        this.loadContentsForModules();  // 👈 ici on charge les contenus pour chaque module
       });
+
     }
 
     goBack() {
@@ -102,6 +104,19 @@
     cancelAddContent() {
       this.showContentModal = false;
     }
+    loadContentsForModules() {
+      this.modules.forEach(module => {
+        this.contentService.getContentsByModule(module._id).subscribe({
+          next: contents => {
+            module.contents = contents;
+          },
+          error: err => {
+            console.error(`Erreur chargement contenus du module ${module._id}`, err);
+          }
+        });
+      });
+    }
+
 
     onFileSelected(event: any) {
       this.selectedFile = event.target.files[0];
