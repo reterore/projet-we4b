@@ -81,3 +81,16 @@ router.post('/:assignmentId/submit', upload.single('file'), async (req, res) => 
         res.status(500).json({ error: 'Erreur serveur' });
     }
 });
+
+//delete
+router.delete('/:id', async (req, res) => {
+    console.log('Suppression de devoir ID:', req.params.id); // ➕
+    try {
+        const result = await Assignment.findByIdAndDelete(req.params.id);
+        if (!result) return res.status(404).send('Assignment not found');
+        res.status(200).json({ message: 'Assignment deleted' });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+

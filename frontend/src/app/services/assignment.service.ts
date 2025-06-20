@@ -50,7 +50,7 @@ export class AssignmentService {
     return this.http.post(`${this.baseUrl}/${assignmentId}/grade/${submissionId}`, data);
   }
   deleteAssignment(id: string) {
-    return this.http.delete(`${this.baseUrl}/assignments/${id}`);
+    return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
 }
