@@ -66,7 +66,7 @@ router.post('/:assignmentId/submit', upload.single('file'), async (req, res) => 
                 size: req.file.size,
                 path: req.file.path,
             },
-            status: 'submitted',
+            status: 'en attente' ,
             grade: null,
             comment: null,
             submittedAt: new Date(),
