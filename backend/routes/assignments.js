@@ -118,3 +118,35 @@ router.post('/:assignmentId/grade/:submissionId', async (req, res) => {
     }
 });
 
+//modifier le devoir
+router.put('/:assignmentId/submission/:submissionId', upload.single('file'), async (req, res) => {
+    try {
+        const { assignmentId, submissionId } = req.params;
+        const assignment = await Assignment.findById(assignmentId);
+        if (!assignment) return res.status(404).send('Assignment not found');
+
+        const submission = assignment.submissions.id(submissionId);
+        if (!submission) return res.status(404).send('Submission not found');
+
+        if (submission.grade !== null) {
+            return res.status(403).send('Cannot update graded submission');
+        }
+
+        if (req.file) {
+            submission.file = {
+                filename: req.file.filename,
+                originalName: req.file.originalname,
+                mimeType: req.file.mimetype,
+                size: req.file.size,
+                path: req.file.path
+            };
+            submission.submittedAt = new Date();
+        }
+
+        await assignment.save();
+        res.json({ message: 'Submission updated' });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+

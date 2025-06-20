@@ -12,6 +12,7 @@ export interface Assignment {
 }
 
 export interface Submission {
+  _id: string;
   studentId: string;
   studentName: string;
   file: {
@@ -53,4 +54,7 @@ export class AssignmentService {
     return this.http.delete(`${this.baseUrl}/${id}`);
   }
 
+  updateSubmission(assignmentId: string, submissionId: string, data: FormData) {
+    return this.http.put(`${this.baseUrl}/${assignmentId}/submission/${submissionId}`, data);
+  }
 }

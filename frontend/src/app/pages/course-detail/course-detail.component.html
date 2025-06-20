@@ -157,14 +157,20 @@
           <ng-container *ngIf="a.submissions && a.submissions.length > 0; else noSubmission">
             <div *ngFor="let s of a.submissions">
               <div *ngIf="s.studentId === auth.getUser()?._id" class="mb-2">
-                📎 <a [href]="'http://localhost:3000/uploads/' + s.file.filename" target="_blank">Voir mon fichier</a>
+                📎 <a [href]="'http://localhost:3000/uploads/assignments/' + s.file.filename" target="_blank">Voir mon fichier</a>
                 <div class="text-muted">🕒 Soumis le {{ s.submittedAt | date:'dd/MM/yyyy à HH:mm' }}</div>
                 <div *ngIf="s.grade !== null">
                   ✅ Note : <strong>{{ s.grade }}/20</strong>
                   <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
                 </div>
-                <div *ngIf="s.grade === null" class="text-warning">⌛ En attente de correction</div>
-              </div>
+                <div *ngIf="s.grade === null" class="text-warning">
+                  ⌛ En attente de correction
+                  <br>
+                  <button class="btn btn-outline-primary btn-sm mt-2" (click)="openEditModal(a._id, s._id)">
+                    🔄 Modifier mon fichier
+                  </button>
+                </div>              </div>
+
             </div>
           </ng-container>
 
@@ -173,6 +179,24 @@
             <input type="file" id="file-{{ a._id }}" (change)="onAssignmentFileSelected($event)" class="form-control mb-2">
             <button class="btn btn-primary btn-sm" (click)="submitAssignment(a._id)">Soumettre</button>
           </ng-template>
+        </div>
+        <!-- ✅ Modal : Modification de fichier -->
+        <div class="modal fade" id="editSubmissionModal" tabindex="-1" aria-labelledby="editSubmissionModalLabel" aria-hidden="true">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="editSubmissionModalLabel">Modifier ma soumission</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+              </div>
+              <div class="modal-body">
+                <input type="file" (change)="onEditFileSelected($event)" class="form-control">
+              </div>
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                <button type="button" class="btn btn-primary" (click)="confirmEditSubmission()">Valider</button>
+              </div>
+            </div>
+          </div>
         </div>
 
 

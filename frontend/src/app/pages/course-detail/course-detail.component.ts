@@ -6,6 +6,7 @@ import { AuthService } from 'src/app/services/auth.service';
 import { CourseService, Course } from 'src/app/services/course.service';
 import { ForumService, Forum, Message } from 'src/app/services/forum.service';
 import { Assignment, AssignmentService, Submission } from 'src/app/services/assignment.service';
+declare var bootstrap: any;
 
 type SubmissionWithTemp = Submission & {
   tempGrade?: number;
@@ -59,6 +60,11 @@ export class CourseDetailComponent implements OnInit {
   newAssignmentTitle = '';
   newAssignmentDescription = '';
   newAssignmentDueDate: string = '';
+
+  selectedUpdateFile: File | null = null;
+  selectedAssignmentId: string | null = null;
+  selectedSubmissionId: string | null = null;
+  editedFile: File | null = null;
 
 
   constructor(
@@ -184,8 +190,11 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
+  onFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.selectedUpdateFile = input.files[0];
+    }
   }
 
   submitContent() {
@@ -286,6 +295,26 @@ export class CourseDetailComponent implements OnInit {
     }
   }
 
+  updateSubmission(assignmentId: string, submissionId: string) {
+    if (!this.selectedUpdateFile) {
+      alert("❌ Aucune mise à jour de² fichier sélectionnée.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', this.selectedUpdateFile);
+
+    this.assignmentService.updateSubmission(assignmentId, submissionId, formData).subscribe({
+      next: () => {
+        alert('✅ Soumission mise à jour.');
+        this.ngOnInit(); // recharge les données
+      },
+      error: err => {
+        console.error('Erreur update soumission', err);
+        alert('❌ Échec de mise à jour.');
+      }
+    });
+  }
   submitForum() {
     if (!this.newForumTitle.trim()) return;
 
@@ -423,6 +452,40 @@ export class CourseDetailComponent implements OnInit {
         alert('❌ Échec de la suppression.');
       }
     });
+  }
+  openEditModal(assignmentId: string, submissionId: string) {
+    this.selectedAssignmentId = assignmentId;
+    this.selectedSubmissionId = submissionId;
+    this.editedFile = null;
+
+    const modal = document.getElementById('editSubmissionModal');
+    if (modal) new bootstrap.Modal(modal).show();
+  }
+
+  onEditFileSelected(event: Event) {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.editedFile = input.files[0];
+    }
+  }
+
+  confirmEditSubmission() {
+    if (!this.selectedAssignmentId || !this.selectedSubmissionId || !this.editedFile) return;
+
+    const formData = new FormData();
+    formData.append('file', this.editedFile);
+
+    this.assignmentService.updateSubmission(this.selectedAssignmentId, this.selectedSubmissionId, formData)
+      .subscribe({
+        next: () => {
+          alert('✅ Fichier mis à jour avec succès');
+          window.location.reload(); // ou rafraîchissement partiel
+        },
+        error: () => alert('❌ Échec de la mise à jour.')
+      });
+
+    const modal = document.getElementById('editSubmissionModal');
+    if (modal) bootstrap.Modal.getInstance(modal)?.hide();
   }
 
 
