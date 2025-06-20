@@ -3,6 +3,8 @@ require('dotenv').config(); // ⚠️ Doit être tout en haut
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const assignmentRoutes = require('./routes/assignments');
+
 
 const app = express();
 
@@ -34,6 +36,8 @@ app.use('/api/logs', require('./routes/logs')); // ⬅️ Pour ton logger
 app.use('/api/modules', require('./routes/modules'));
 app.use('/api/forums', require('./routes/forum'));
 app.use('/uploads', express.static('uploads'));
+app.use('/api/assignments', assignmentRoutes);
+app.use('/uploads/assignments', express.static('uploads/assignments'));
 
 // ✅ Route de test
 app.get('/api/test', (req, res) => {

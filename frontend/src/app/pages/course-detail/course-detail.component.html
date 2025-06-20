@@ -194,12 +194,93 @@
 
   <!-- Devoirs -->
   <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0">Devoirs à rendre</h5>
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">📚 Devoirs à rendre</h5>
+      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showAddAssignmentModal = true">➕ Ajouter un devoir</button>
     </div>
+
     <div class="card-body">
-      <p>Fonctionnalité à venir : ici seront listés les devoirs et leurs dates limites.</p>
-      <div class="alert alert-secondary">🔧 En cours de développement…</div>
+      <div *ngIf="assignments.length === 0" class="alert alert-light">Aucun devoir pour ce cours.</div>
+
+      <div *ngFor="let a of assignments" class="mb-3 border rounded p-3 bg-light">
+        <h6 class="mb-1 text-primary">{{ a.title }}</h6>
+        <div *ngIf="isProf" class="text-end">
+          <button class="btn btn-outline-danger btn-sm" (click)="deleteAssignment(a._id)">🗑 Supprimer le devoir</button>
+        </div>
+
+        <p class="mb-1">
+          📅 Date limite : <strong>{{ a.dueDate | date:'shortDate' }}</strong>
+          <span *ngIf="a.description"> | 📝 {{ a.description }}</span>
+        </p>
+
+        <!-- Étudiant : soumission -->
+        <div *ngIf="!isProf">
+          <ng-container *ngIf="a.submissions && a.submissions.length > 0; else noSubmission">
+            <div *ngFor="let s of a.submissions">
+              <div *ngIf="s.studentId === auth.getUser()?._id" class="mb-2">
+                📎 <a [href]="'http://localhost:3000/uploads/' + s.file.filename" target="_blank">Voir mon fichier</a>
+                <div class="text-muted">🕒 Soumis le {{ s.submittedAt | date:'dd/MM/yyyy à HH:mm' }}</div>
+                <div *ngIf="s.grade !== null">
+                  ✅ Note : <strong>{{ s.grade }}/20</strong>
+                  <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+                </div>
+                <div *ngIf="s.grade === null" class="text-warning">⌛ En attente de correction</div>
+              </div>
+            </div>
+          </ng-container>
+
+          <ng-template #noSubmission>
+            <label for="file-{{ a._id }}" class="form-label">📤 Soumettre un fichier :</label>
+            <input type="file" id="file-{{ a._id }}" (change)="onAssignmentFileSelected($event)" class="form-control mb-2">
+            <button class="btn btn-primary btn-sm" (click)="submitAssignment(a._id)">Soumettre</button>
+          </ng-template>
+        </div>
+
+
+        <!-- Professeur : soumissions -->
+        <div *ngIf="isProf && a.submissions && a.submissions.length > 0">
+          <p><strong>Soumissions :</strong></p>
+          <ul class="list-group">
+            <li class="list-group-item" *ngFor="let s of a.submissions">
+              👤 {{ s.studentName }} |
+              📎 <a [href]="'http://localhost:3000/uploads/' + s.file.filename" target="_blank">Voir le fichier</a>
+              <div *ngIf="!s.grade">
+                <input [(ngModel)]="s.tempGrade" type="number" min="0" max="20" placeholder="Note" class="form-control-sm me-2" style="width: 70px;">
+                <input [(ngModel)]="s.tempComment" placeholder="Commentaire" class="form-control-sm me-2">
+                <button class="btn btn-success btn-sm" (click)="gradeSubmission(a._id, s)">Noter</button>
+              </div>
+              <div *ngIf="s.grade">
+                ✅ Note : <strong>{{ s.grade }}/20</strong>
+                <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+              </div>
+            </li>
+          </ul>
+        </div>
+      </div>
     </div>
   </div>
+
+  <!-- Modale ajout devoir -->
+  <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showAddAssignmentModal">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Créer un nouveau devoir</h5>
+          <button type="button" class="btn-close" (click)="cancelAddAssignment()"></button>
+        </div>
+        <div class="modal-body">
+          <input [(ngModel)]="newAssignmentTitle" class="form-control mb-2" placeholder="Titre du devoir" />
+          <textarea [(ngModel)]="newAssignmentDescription" class="form-control mb-2" placeholder="Description (optionnelle)"></textarea>
+          <label class="form-label">Date limite :</label>
+          <input [(ngModel)]="newAssignmentDueDate" type="date" class="form-control" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="cancelAddAssignment()">Annuler</button>
+          <button class="btn btn-primary" [disabled]="!newAssignmentTitle || !newAssignmentDueDate" (click)="submitNewAssignment()">Créer</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+
 </div>
