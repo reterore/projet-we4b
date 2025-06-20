@@ -94,3 +94,27 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+//noter
+
+router.post('/:assignmentId/grade/:submissionId', async (req, res) => {
+    const { assignmentId, submissionId } = req.params;
+    const { grade, comment } = req.body;
+
+    try {
+        const assignment = await Assignment.findById(assignmentId);
+        if (!assignment) return res.status(404).send('Assignment not found');
+
+        const submission = assignment.submissions.id(submissionId);
+        if (!submission) return res.status(404).send('Submission not found');
+
+        submission.grade = grade;
+        submission.comment = comment;
+        submission.status = 'corrigé';
+
+        await assignment.save();
+        res.status(200).json({ message: 'Grade updated successfully' });
+    } catch (err) {
+        res.status(500).send(err.message);
+    }
+});
+
