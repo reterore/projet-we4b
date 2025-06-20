@@ -5,6 +5,7 @@ import { ModuleService, Module, NewModule } from 'src/app/services/module.servic
 import { AuthService } from 'src/app/services/auth.service';
 import { CourseService, Course } from 'src/app/services/course.service';
 import { ForumService, Forum, Message } from 'src/app/services/forum.service';
+import { LogService } from 'src/app/services/log.service';
 
 @Component({
   selector: 'app-course-detail',
@@ -23,7 +24,7 @@ export class CourseDetailComponent implements OnInit {
 
   openedModuleId: string | null = null;
   editingModuleId: string | null = null;
-  editModuleTitle = '';
+  editModuleTitle: string = '';
 
   showContentModal = false;
   newContentTitle = '';
@@ -48,7 +49,8 @@ export class CourseDetailComponent implements OnInit {
     private courseService: CourseService,
     private auth: AuthService,
     private router: Router,
-    private forumService: ForumService
+    private forumService: ForumService,
+    private logService: LogService
   ) {}
 
   ngOnInit(): void {
@@ -57,47 +59,54 @@ export class CourseDetailComponent implements OnInit {
     this.isProf = user?.role === 'teacher';
 
     this.courseService.getCourse(this.courseId).subscribe({
-      next: (c: Course) => this.course = c,
-      error: (err: any) => {
+      next: c => {
+        this.course = c;
+
+        // ✅ Log consultation de cours
+        const user = this.auth.getUser();
+        if (user && c._id) {
+          this.logService.sendLog({
+            userId: user._id,
+            action: 'course_view',
+            details: {
+              email: user.email,
+              role: user.role,
+              courseId: c._id,
+              courseTitle: c.title,
+              time: new Date().toISOString()
+            }
+          }).subscribe({
+            error: err => console.warn('⚠️ Erreur log consultation cours :', err)
+          });
+        }
+      },
+      error: err => {
         console.error('Erreur chargement cours', err);
         this.router.navigate(['/dashboard']);
       }
     });
-
-    this.moduleService.getModulesByCourse(this.courseId).subscribe({
-      next: (mods: Module[]) => {
-        this.modules = mods;
-        this.loadContentsForModules();
-      },
-      error: (err: any) => console.error('Erreur chargement modules', err)
-    });
-
-    this.forumService.getForumsByCourse(this.courseId).subscribe({
-      next: (forums: Forum[]) => this.forums = forums,
-      error: (err: any) => console.error('Erreur chargement forums', err)
-    });
   }
 
-  goBack(): void {
+  goBack() {
     this.router.navigate(['/dashboard']);
   }
 
-  toggleModule(moduleId: string): void {
+  toggleModule(moduleId: string) {
     this.openedModuleId = this.openedModuleId === moduleId ? null : moduleId;
   }
 
-  startEditing(module: Module): void {
+  startEditing(module: Module) {
     this.editingModuleId = module._id ?? null;
     this.editModuleTitle = module.title;
     this.openedModuleId = module._id;
   }
 
-  cancelEdit(): void {
+  cancelEdit() {
     this.editingModuleId = null;
     this.editModuleTitle = '';
   }
 
-  saveEdit(moduleId: string): void {
+  saveEdit(moduleId: string) {
     if (!this.editModuleTitle.trim()) return;
     this.moduleService.updateModule(moduleId, { title: this.editModuleTitle }).subscribe({
       next: () => {
@@ -105,11 +114,11 @@ export class CourseDetailComponent implements OnInit {
         if (mod) mod.title = this.editModuleTitle;
         this.cancelEdit();
       },
-      error: (err: any) => console.error('Erreur modification module', err)
+      error: err => console.error('Erreur modification module', err)
     });
   }
 
-  startAddContent(moduleId: string): void {
+  startAddContent(moduleId: string) {
     this.currentModuleId = moduleId;
     this.showContentModal = true;
     this.newContentTitle = '';
@@ -118,24 +127,24 @@ export class CourseDetailComponent implements OnInit {
     this.newContentType = 'text';
   }
 
-  cancelAddContent(): void {
+  cancelAddContent() {
     this.showContentModal = false;
   }
 
-  loadContentsForModules(): void {
+  loadContentsForModules() {
     this.modules.forEach(module => {
       this.contentService.getContentsByModule(module._id).subscribe({
-        next: (contents: Content[]) => module.contents = contents,
-        error: (err: any) => console.error(`Erreur chargement contenus du module ${module._id}`, err)
+        next: contents => module.contents = contents,
+        error: err => console.error(`Erreur chargement contenus du module ${module._id}`, err)
       });
     });
   }
 
-  onFileSelected(event: any): void {
+  onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
   }
 
-  submitContent(): void {
+  submitContent() {
     if (!this.currentModuleId || !this.newContentTitle) return;
 
     const formData = new FormData();
@@ -145,14 +154,16 @@ export class CourseDetailComponent implements OnInit {
 
     if (this.newContentType === 'text') {
       formData.append('text', this.newContentText);
-    } else if (this.newContentType === 'file' && this.selectedFile) {
-      formData.append('file', this.selectedFile);
-    } else {
-      return;
+    } else if (this.newContentType === 'file') {
+      if (this.selectedFile) {
+        formData.append('file', this.selectedFile);
+      } else {
+        return;
+      }
     }
 
     this.contentService.addContent(formData).subscribe({
-      next: (content: Content) => {
+      next: content => {
         const mod = this.modules.find(m => m._id === content.moduleId);
         if (mod) {
           if (!mod.contents) mod.contents = [];
@@ -160,23 +171,23 @@ export class CourseDetailComponent implements OnInit {
         }
         this.cancelAddContent();
       },
-      error: (err: any) => console.error('Erreur ajout contenu', err)
+      error: err => console.error('Erreur ajout contenu', err)
     });
   }
 
-  deleteModule(moduleId: string): void {
+  deleteModule(moduleId: string) {
     if (confirm('Voulez-vous vraiment supprimer ce module ?')) {
       this.moduleService.deleteModule(moduleId).subscribe({
         next: () => {
           this.modules = this.modules.filter(m => m._id !== moduleId);
           if (this.openedModuleId === moduleId) this.openedModuleId = null;
         },
-        error: (err: any) => console.error('Erreur suppression module', err)
+        error: err => console.error('Erreur suppression module', err)
       });
     }
   }
 
-  addModule(): void {
+  addModule() {
     if (!this.newModuleTitle.trim()) return;
 
     const newMod: NewModule = {
@@ -185,53 +196,53 @@ export class CourseDetailComponent implements OnInit {
     };
 
     this.moduleService.createModule(newMod).subscribe({
-      next: (mod: Module) => {
+      next: mod => {
         this.modules.push(mod);
         this.newModuleTitle = '';
         this.showModuleModal = false;
       },
-      error: (err: any) => console.error('Erreur création module', err)
+      error: err => console.error('Erreur création module', err)
     });
   }
 
-  startEditingContent(content: Content): void {
+  startEditingContent(content: Content) {
     this.editingContentId = content._id;
     this.editedContentTitle = content.title;
     this.editedContentText = content.text || '';
   }
 
-  cancelEditContent(): void {
+  cancelEditContent() {
     this.editingContentId = null;
     this.editedContentTitle = '';
     this.editedContentText = '';
   }
 
-  saveContentEdit(content: Content): void {
+  saveContentEdit(content: Content) {
     this.contentService.updateContent(content._id, {
       title: this.editedContentTitle,
       text: this.editedContentText
     }).subscribe({
-      next: (updated: Content) => {
+      next: updated => {
         content.title = updated.title;
         content.text = updated.text;
         this.cancelEditContent();
       },
-      error: (err: any) => console.error('Erreur modification contenu', err)
+      error: err => console.error('Erreur modification contenu', err)
     });
   }
 
-  deleteContent(content: Content, module: Module): void {
+  deleteContent(content: Content, module: Module) {
     if (confirm('Supprimer ce contenu ?')) {
       this.contentService.deleteContent(content._id).subscribe({
         next: () => {
           module.contents = module.contents?.filter(c => c._id !== content._id);
         },
-        error: (err: any) => console.error('Erreur suppression contenu', err)
+        error: err => console.error('Erreur suppression contenu', err)
       });
     }
   }
 
-  submitForum(): void {
+  submitForum() {
     if (!this.newForumTitle.trim()) return;
 
     const newForum: Forum = {
@@ -241,31 +252,32 @@ export class CourseDetailComponent implements OnInit {
     };
 
     this.forumService.createForum(newForum).subscribe({
-      next: (forum: Forum) => {
+      next: forum => {
         this.forums.push({ ...forum, newMessage: '' });
         this.newForumTitle = '';
         this.showForumModal = false;
       },
-      error: (err: any) => console.error('Erreur création forum', err)
+      error: err => console.error('Erreur création forum', err)
     });
   }
 
-  sendMessageToForum(forum: Forum & { newMessage?: string }): void {
+
+  sendMessageToForum(forum: Forum & { newMessage?: string }) {
     const user = this.auth.getUser();
-    if (!forum.newMessage?.trim() || !forum._id || !user) return;
+    if (!forum.newMessage?.trim() || !forum._id) return;
 
     const message: Message = {
-      author: `${user.surname} ${user.name}`,
+      author: `${user?.surname} ${user?.name}`,
       content: forum.newMessage,
       timestamp: new Date().toISOString()
     };
 
     this.forumService.addMessage(forum._id, message).subscribe({
-      next: (updated: Forum) => {
+      next: updated => {
         forum.messages = updated.messages;
         forum.newMessage = '';
       },
-      error: (err: any) => console.error('Erreur envoi message', err)
+      error: err => console.error('Erreur envoi message', err)
     });
   }
 }

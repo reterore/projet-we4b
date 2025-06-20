@@ -12,6 +12,10 @@ router.post('/', async (req, res) => {
             return res.status(400).json({ error: 'Titre et courseId requis.' });
         }
 
+        if (!mongoose.Types.ObjectId.isValid(courseId)) {
+            return res.status(400).json({ error: 'courseId invalide.' });
+        }
+
         const forum = new Forum({
             title,
             courseId,
@@ -22,7 +26,7 @@ router.post('/', async (req, res) => {
         res.status(201).json(forum);
     } catch (err) {
         console.error('❌ Erreur POST /forums :', err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: 'Erreur serveur.' });
     }
 });
 
@@ -53,10 +57,13 @@ router.post('/:id/messages', async (req, res) => {
 
     try {
         const forum = await Forum.findById(forumId);
-        if (!forum) return res.status(404).json({ error: "Forum non trouvé." });
+        if (!forum) {
+            return res.status(404).json({ error: 'Forum non trouvé.' });
+        }
 
         forum.messages.push({ author, content, timestamp });
         await forum.save();
+
         res.status(200).json(forum);
     } catch (err) {
         console.error(`❌ Erreur POST /forums/${forumId}/messages :`, err);

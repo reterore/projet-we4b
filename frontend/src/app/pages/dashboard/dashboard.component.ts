@@ -3,6 +3,7 @@ import { Course, CourseService } from 'src/app/services/course.service';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
 import { AuthService } from 'src/app/services/auth.service';
+import { LogService } from 'src/app/services/log.service';
 
 interface User {
   _id: string;
@@ -21,19 +22,19 @@ interface User {
 export class DashboardComponent implements OnInit {
   user: User | null = null;
   courses: Course[] = [];
-  isProf: boolean = false;
+  isProf = false;
   allUsers: User[] = [];
   allCourses: Course[] = [];
   editingCourse: Course | null = null;
-  courseTitle: string = '';
-  courseDescription: string = '';
-
+  courseTitle = '';
+  courseDescription = '';
 
   constructor(
     private courseService: CourseService,
     private router: Router,
     private http: HttpClient,
-    private auth: AuthService
+    private auth: AuthService,
+    private logService: LogService
   ) {}
 
   ngOnInit(): void {
@@ -45,26 +46,21 @@ export class DashboardComponent implements OnInit {
       return;
     }
 
-    // 🔄 Charger les infos utilisateur
     this.http.get<User>(`http://localhost:3000/api/users/${userId}`).subscribe({
       next: user => {
         this.user = user;
         this.isProf = user.role === 'teacher';
 
-        // 📚 Charger tous les cours
         this.courseService.getCourses().subscribe(allCourses => {
-          // 🎯 Filtrer les cours sélectionnés par l'utilisateur
           this.courses = allCourses.filter(course =>
             user.selectedCourses?.includes(course._id ?? '')
           );
 
-          // 👨‍🏫 Si prof, afficher tous les cours
           if (this.isProf) {
             this.allCourses = allCourses;
           }
         });
 
-        // 👥 Si prof, charger tous les utilisateurs
         if (this.isProf) {
           this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
             next: users => this.allUsers = users,
@@ -79,34 +75,34 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  logout() {
+  logout(): void {
     this.auth.logout();
     this.router.navigate(['/login']);
   }
-  startEditing(course: Course) {
-    this.editingCourse = { ...course }; // On copie pour ne pas modifier directement
+
+  startEditing(course: Course): void {
+    this.editingCourse = { ...course };
     this.courseTitle = course.title;
     this.courseDescription = course.description;
   }
 
-  cancelEditing() {
+  cancelEditing(): void {
     this.editingCourse = null;
     this.courseTitle = '';
     this.courseDescription = '';
   }
 
-  saveCourseChanges() {
+  saveCourseChanges(): void {
     if (!this.editingCourse) return;
 
     const updated = {
       title: this.courseTitle,
       description: this.courseDescription,
-      teacherId: this.editingCourse.teacherId // ⚠️ important si requis côté backend
+      teacherId: this.editingCourse.teacherId
     };
 
     this.courseService.updateCourse(this.editingCourse._id!, updated).subscribe({
       next: () => {
-        // Recharger les cours pour voir les changements
         this.ngOnInit();
         this.cancelEditing();
       },
@@ -114,17 +110,15 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-
-  // 🔎 Récupération du nom complet du professeur
   getTeacherName(course: Course): string {
     const teacher = course.teacherId;
-
     if (teacher && typeof teacher === 'object') {
       const name = (teacher as any).name;
       const surname = (teacher as any).surname;
       if (name && surname) return `${name} ${surname}`;
     }
-
     return `(Prof inconnu: ${teacher})`;
   }
+
+
 }

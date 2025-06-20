@@ -9,14 +9,21 @@ const logSchema = new mongoose.Schema({
     action: {
         type: String,
         required: true,
-        enum: ['login', 'logout', 'course_view', 'course_deleted', 'course_created', 'course_updated']
+        enum: [
+            'login',
+            'logout',
+            'course_view',
+            'course_created',
+            'course_updated',
+            'course_deleted'
+        ]
     },
     details: {
         type: mongoose.Schema.Types.Mixed,
         default: {}
     }
 }, {
-    timestamps: true
+    timestamps: true // Ajoute createdAt et updatedAt automatiquement
 });
 
 module.exports = mongoose.model('Log', logSchema);
