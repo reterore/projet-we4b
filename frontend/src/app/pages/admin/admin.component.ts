@@ -5,6 +5,8 @@ import { LogService, LogEntry } from 'src/app/services/log.service';
 import { Router, ActivatedRoute } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 
+declare var bootstrap: any;
+
 @Component({
   selector: 'app-admin',
   templateUrl: './admin.component.html',
@@ -15,6 +17,8 @@ export class AdminComponent implements OnInit {
   courses: Course[] = [];
   logs: LogEntry[] = [];
   currentTab: 'users' | 'courses' | 'logs' = 'users';
+
+  newUser: Partial<User> = {};
 
   userError = false;
   courseError = false;
@@ -157,4 +161,31 @@ export class AdminComponent implements OnInit {
     }
   }
 
+  openCreateUserModal(): void {
+    this.newUser = {};
+    const modalEl = document.getElementById('createUserModal');
+    if (modalEl) {
+      const modal = new bootstrap.Modal(modalEl);
+      modal.show();
+    }
+  }
+
+  createUser(): void {
+    if (!this.newUser.email || !this.newUser.password || !this.newUser.role) {
+      alert('Tous les champs obligatoires doivent être remplis.');
+      return;
+    }
+
+    this.userService.createUser(this.newUser).subscribe({
+      next: () => {
+        this.loadUsers();
+        const modalEl = document.getElementById('createUserModal');
+        if (modalEl) {
+          const modalInstance = bootstrap.Modal.getInstance(modalEl);
+          modalInstance?.hide();
+        }
+      },
+      error: err => console.error('❌ Erreur création utilisateur :', err)
+    });
+  }
 }

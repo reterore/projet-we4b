@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { switchMap } from 'rxjs/operators';
 
+
 export interface User {
   _id?: string;
   name: string;
@@ -10,6 +11,7 @@ export interface User {
   email: string;
   role: string;
   selectedCourses?: string[];
+  password?: string;
 }
 
 @Injectable({
@@ -44,4 +46,11 @@ export class UserService {
   appendCourseToUser(userId: string, courseId: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${userId}/append-course`, { courseId });
   }
+
+  createUser(user: Partial<User>): Observable<User> {
+    return this.http.post<User>(this.apiUrl, user);
+  }
+
+
+
 }

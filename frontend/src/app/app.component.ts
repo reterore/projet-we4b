@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { AuthService } from './services/auth.service';
 import { Router } from '@angular/router';
+import { LogService } from './services/log.service'; // ← ajout du service
+import { LogEntry } from './services/log.service';   // ← interface LogEntry
 
 @Component({
   selector: 'app-root',
@@ -9,18 +11,46 @@ import { Router } from '@angular/router';
 export class AppComponent implements OnInit {
   isProf: boolean = false;
   title = 'frontend';
-  constructor(private auth: AuthService, private router: Router) {}
+
+  // Injection de LogService
+  constructor(
+    private auth: AuthService,
+    private router: Router,
+    private logService: LogService
+  ) {}
+
+  hideNavbarRoutes = ['/login', '/register'];
 
   ngOnInit() {
     const user = this.auth.getUser();
     this.isProf = user?.role === 'teacher';
   }
 
-  hideNavbarRoutes = ['/login', '/register'];
-
   logout() {
-    this.auth.logout();
-    this.router.navigate(['/login']);
+    const user = this.auth.getUser();
+    if (user) {
+      const log: LogEntry = {
+        userId: user._id,
+        action: 'logout',
+        details: {
+          email: user.email,
+          role: user.role,
+          time: new Date().toISOString()
+        }
+      };
+
+      this.logService.sendLog(log).subscribe({
+        next: () => console.log('✅ Log de déconnexion enregistré.'),
+        error: err => console.warn('⚠️ Échec d’enregistrement du log :', err),
+        complete: () => {
+          this.auth.logout();
+          this.router.navigate(['/login']);
+        }
+      });
+    } else {
+      this.auth.logout();
+      this.router.navigate(['/login']);
+    }
   }
 
   shouldShowNavbar(): boolean {

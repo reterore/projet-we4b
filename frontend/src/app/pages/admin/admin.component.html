@@ -18,6 +18,8 @@
   <!-- Utilisateurs -->
   <div *ngIf="currentTab === 'users'">
     <h4 class="mb-3">Liste des utilisateurs</h4>
+    <button class="btn btn-success mb-3" (click)="openCreateUserModal()">➕ Créer un utilisateur</button>
+
     <div *ngIf="userError" class="alert alert-danger">Erreur lors du chargement des utilisateurs.</div>
     <div *ngIf="!userError && users.length === 0" class="alert alert-warning">Aucun utilisateur trouvé.</div>
 
@@ -47,6 +49,50 @@
       </table>
     </div>
   </div>
+  <!-- Modal de création d'utilisateur -->
+  <div class="modal fade" id="createUserModal" tabindex="-1" aria-labelledby="createUserModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <form (ngSubmit)="createUser()" #createUserForm="ngForm" class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="createUserModalLabel">Créer un nouvel utilisateur</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="name" class="form-label">Prénom</label>
+            <input type="text" id="name" class="form-control" [(ngModel)]="newUser.name" name="name" required>
+          </div>
+          <div class="mb-3">
+            <label for="surname" class="form-label">Nom</label>
+            <input type="text" id="surname" class="form-control" [(ngModel)]="newUser.surname" name="surname" required>
+          </div>
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="email" id="email" class="form-control" [(ngModel)]="newUser.email" name="email" required>
+          </div>
+          <div class="mb-3">
+            <label for="role" class="form-label">Rôle</label>
+            <select id="role" class="form-select" [(ngModel)]="newUser.role" name="role" required>
+              <option value="" disabled selected>Sélectionner un rôle</option>
+              <option value="student">Étudiant</option>
+              <option value="teacher">Enseignant</option>
+              <option value="admin">Administrateur</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Mot de passe</label>
+            <input type="password" id="password" class="form-control" [(ngModel)]="newUser.password" name="password" required>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="!createUserForm.form.valid">Créer</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
 
   <!-- Cours -->
   <div *ngIf="currentTab === 'courses'">
