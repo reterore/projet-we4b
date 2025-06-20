@@ -32,6 +32,7 @@ app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/contents', require('./routes/contentRoutes'));
 app.use('/api/logs', require('./routes/logs')); // ⬅️ Pour ton logger
 app.use('/api/modules', require('./routes/modules'));
+app.use('/api/forums', require('./routes/forum'));
 app.use('/uploads', express.static('uploads'));
 
 // ✅ Route de test
