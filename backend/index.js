@@ -38,6 +38,8 @@ app.use('/api/forums', require('./routes/forum'));
 app.use('/uploads', express.static('uploads'));
 app.use('/api/assignments', assignmentRoutes);
 app.use('/uploads/assignments', express.static('uploads/assignments'));
+app.use('/api/assignments', require('./routes/assignments'));
+
 
 // ✅ Route de test
 app.get('/api/test', (req, res) => {
