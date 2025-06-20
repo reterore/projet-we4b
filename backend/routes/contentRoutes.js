@@ -65,4 +65,35 @@ router.get('/module/:moduleId', async (req, res) => {
     }
 });
 
+// DELETE - Pour supprimer les contenu d'un module
+router.delete('/:id', async (req, res) => {
+    try {
+        const deleted = await Content.findByIdAndDelete(req.params.id);
+        if (!deleted) return res.status(404).json({ error: 'Contenu non trouvé' });
+        res.json({ message: 'Contenu supprimé avec succès' });
+    } catch (err) {
+        console.error('Erreur suppression contenu :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+// Pour modifier un contenu texte
+router.put('/:id', async (req, res) => {
+    try {
+        const { title, text } = req.body;
+        const updated = await Content.findByIdAndUpdate(
+            req.params.id,
+            { title, text },
+            { new: true }
+        );
+        if (!updated) return res.status(404).json({ error: 'Contenu non trouvé' });
+        res.json(updated);
+    } catch (err) {
+        console.error('Erreur modification contenu :', err);
+        res.status(500).json({ error: 'Erreur serveur' });
+    }
+});
+
+
+
 module.exports = router;

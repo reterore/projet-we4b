@@ -30,6 +30,11 @@
     selectedFile: File | null = null;
     currentModuleId: string | null = null;
 
+    editingContentId: string | null = null;
+    editedContentTitle = '';
+    editedContentText = '';
+
+
     constructor(
         private route: ActivatedRoute,
         private contentService: ContentService,
@@ -201,4 +206,42 @@
         error: err => console.error('Erreur création module', err)
       });
     }
+
+    startEditingContent(content: Content) {
+      this.editingContentId = content._id;
+      this.editedContentTitle = content.title;
+      this.editedContentText = content.text || '';
+    }
+
+    cancelEditContent() {
+      this.editingContentId = null;
+      this.editedContentTitle = '';
+      this.editedContentText = '';
+    }
+
+    saveContentEdit(content: Content) {
+      this.contentService.updateContent(content._id, {
+        title: this.editedContentTitle,
+        text: this.editedContentText
+      }).subscribe({
+        next: updated => {
+          content.title = updated.title;
+          content.text = updated.text;
+          this.cancelEditContent();
+        },
+        error: err => console.error('Erreur modification contenu', err)
+      });
+    }
+
+    deleteContent(content: Content, module: Module) {
+      if (confirm('Supprimer ce contenu ?')) {
+        this.contentService.deleteContent(content._id).subscribe({
+          next: () => {
+            module.contents = module.contents?.filter(c => c._id !== content._id);
+          },
+          error: err => console.error('Erreur suppression contenu', err)
+        });
+      }
+    }
+
   }

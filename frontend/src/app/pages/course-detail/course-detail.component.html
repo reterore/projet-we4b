@@ -36,13 +36,34 @@
               <div *ngIf="m.contents && m.contents.length > 0; else noContent">
                 <div *ngFor="let c of m.contents" class="border rounded p-2 mb-2 bg-light">
                   <strong>{{ c.title }}</strong>
-                  <div *ngIf="c.type === 'text'">
+
+                  <!-- Texte en mode lecture -->
+                  <div *ngIf="editingContentId !== c._id && c.type === 'text'">
                     <p>{{ c.text }}</p>
                   </div>
+
+                  <!-- Texte en mode édition -->
+                  <div *ngIf="editingContentId === c._id && c.type === 'text'" class="mb-2">
+                    <input [(ngModel)]="editedContentTitle" class="form-control mb-1" />
+                    <textarea [(ngModel)]="editedContentText" class="form-control mb-2"></textarea>
+                    <button class="btn btn-success btn-sm me-1" (click)="saveContentEdit(c)">💾 Enregistrer</button>
+                    <button class="btn btn-secondary btn-sm" (click)="cancelEditContent()">Annuler</button>
+                  </div>
+
+                  <!-- Fichier -->
                   <div *ngIf="c.type === 'file'">
-                    <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">📎 Voir le fichier</a>
+                    <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">
+                      📎 Voir le fichier
+                    </a>
+                  </div>
+
+                  <!-- Boutons action -->
+                  <div *ngIf="isProf && editingContentId !== c._id" class="mt-2">
+                    <button *ngIf="c.type === 'text'" class="btn btn-outline-secondary btn-sm me-1" (click)="startEditingContent(c)">✏Modifier</button>
+                    <button class="btn btn-outline-danger btn-sm" (click)="deleteContent(c, m)">Supprimer</button>
                   </div>
                 </div>
+
               </div>
               <ng-template #noContent>
                 <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
