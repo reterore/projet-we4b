@@ -243,7 +243,7 @@
           <ul class="list-group">
             <li class="list-group-item" *ngFor="let s of a.submissions">
               👤 {{ s.studentName }} |
-              📎 <a [href]="'http://localhost:3000/uploads/' + s.file.filename" target="_blank">Voir le fichier</a>
+              📎 <a [href]="'http://localhost:3000/uploads/assignments/' + s.file.filename" target="_blank">Voir le fichier</a>
               <div *ngIf="!s.grade">
                 <input [(ngModel)]="s.tempGrade" type="number" min="0" max="20" placeholder="Note" class="form-control-sm me-2" style="width: 70px;">
                 <input [(ngModel)]="s.tempComment" placeholder="Commentaire" class="form-control-sm me-2">
