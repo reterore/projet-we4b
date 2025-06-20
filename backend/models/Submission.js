@@ -27,7 +27,7 @@ const submissionSchema = new mongoose.Schema({
         min: 0,
         max: 20
     },
-    feedback: String
+    comment: String
 });
 
 module.exports = submissionSchema;
