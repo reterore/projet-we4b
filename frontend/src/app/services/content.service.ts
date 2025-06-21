@@ -61,4 +61,10 @@ export class ContentService {
   isContentViewed(studentId: string, contentId: string): Observable<{ isViewed: boolean }> {
     return this.http.get<{ isViewed: boolean }>(`${this.progressUrl}/check/${studentId}/${contentId}`);
   }
+
+  getCourseProgress(studentId: string, courseId: string) {
+    return this.http.get<{ percentage: number }>(
+      `http://localhost:3000/api/progress/${studentId}/${courseId}`
+    );
+  }
 }

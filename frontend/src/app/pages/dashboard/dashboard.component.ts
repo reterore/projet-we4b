@@ -1,9 +1,10 @@
-import { Component, OnInit } from '@angular/core';
-import { Course, CourseService } from 'src/app/services/course.service';
-import { Router } from '@angular/router';
-import { HttpClient } from '@angular/common/http';
-import { AuthService } from 'src/app/services/auth.service';
-import { LogService } from 'src/app/services/log.service';
+import {Component, OnInit} from '@angular/core';
+import {Course, CourseService} from 'src/app/services/course.service';
+import {Router} from '@angular/router';
+import {HttpClient} from '@angular/common/http';
+import {AuthService} from 'src/app/services/auth.service';
+import {LogService} from 'src/app/services/log.service';
+import {ContentService} from 'src/app/services/content.service';
 
 interface User {
   _id: string;
@@ -12,6 +13,13 @@ interface User {
   surname: string;
   role: string;
   selectedCourses: string[];
+}
+
+interface Module {
+  _id: string;
+  title: string;
+  courseId: string;
+  contents: { _id: string; title: string; type: string }[];
 }
 
 @Component({
@@ -28,13 +36,20 @@ export class DashboardComponent implements OnInit {
   editingCourse: Course | null = null;
   title = '';
   courseDescription = '';
+  courseProgressMap: Record<string, number> = {};
+  modules: Module[] = [];
+  courseContentCount: Record<string, number> = {};
+  courseModuleCompletionMap: Record<string, number> = {};
+  viewedMap: Record<string, boolean> = {};
+  totalViewedContents = 0;
 
   constructor(
     private courseService: CourseService,
     private router: Router,
     private http: HttpClient,
     private auth: AuthService,
-    private logService: LogService
+    private logService: LogService,
+    private contentService: ContentService
   ) {}
 
   ngOnInit(): void {
@@ -56,13 +71,62 @@ export class DashboardComponent implements OnInit {
             user.selectedCourses?.includes(course._id ?? '')
           );
 
-          if (this.isProf) {
-            this.allCourses = allCourses;
-          }
+          this.http.get<Module[]>('http://localhost:3000/api/modules').subscribe({
+            next: mods => {
+              this.modules = mods;
+
+              const promises: Promise<void>[] = [];
+
+              this.courses.forEach(course => {
+                const courseModules = mods.filter(m => m.courseId === course._id);
+
+                this.courseContentCount[course._id!] = courseModules.reduce((sum, m) => sum + (m.contents?.length || 0), 0);
+
+                promises.push(
+                  ...courseModules.map(m =>
+                    Promise.all(
+                      m.contents.map(c =>
+                        this.contentService.isContentViewed(user._id, c._id).toPromise()
+                          .then(res => {
+                            if (res && typeof res.isViewed === 'boolean') {
+                              this.viewedMap[c._id] = res.isViewed;
+                            } else {
+                              console.warn(`⚠️ Réponse inattendue pour contenu ${c._id} :`, res);
+                            }
+                          })
+                          .catch(err => console.warn(`⚠️ Erreur vue pour contenu ${c._id} :`, err))
+                      )
+                    ).then(() => {
+                      const viewed = this.getViewedCount(m);
+                      const total = m.contents?.length || 0;
+                      if (total > 0 && viewed === total) {
+                        if (!this.courseModuleCompletionMap[course._id!]) {
+                          this.courseModuleCompletionMap[course._id!] = 0;
+                        }
+                        this.courseModuleCompletionMap[course._id!]++;
+                      }
+                    })
+                  )
+                );
+              });
+
+              Promise.all(promises).then(() => {
+                this.courses.forEach(course => {
+                  const modules = this.modules.filter(m => m.courseId === course._id);
+                  const count = modules.length;
+                  const completed = this.courseModuleCompletionMap[course._id!] || 0;
+                  this.courseModuleCompletionMap[course._id!] = count > 0 ? Math.round((completed / count) * 100) : 0;
+                });
+
+                this.totalViewedContents = mods.reduce((sum, m) => sum + this.getViewedCount(m), 0);
+              });
+            },
+            error: err => console.error('❌ Erreur chargement modules :', err)
+          });
         });
 
         if (this.isProf) {
-          this.http.get<User[]>('http://localhost:3000/api/users').subscribe({
+          this.http.get<User[]>(`http://localhost:3000/api/users`).subscribe({
             next: users => this.allUsers = users,
             error: err => console.error('❌ Erreur chargement utilisateurs :', err)
           });
@@ -80,47 +144,34 @@ export class DashboardComponent implements OnInit {
     this.router.navigate(['/login']);
   }
 
-  startEditing(course: Course): void {
-    this.editingCourse = { ...course };
-    this.title = course.title;
-    this.courseDescription = course.description;
+  getCourseProgress(courseId: string): number {
+    const total = this.getCourseContentCount(courseId);
+    const viewed = this.getCourseViewedCount(courseId);
+    if (total === 0) return 0;
+    return Math.round((viewed / total) * 100);
   }
 
-  cancelEditing(): void {
-    this.editingCourse = null;
-    this.title = '';
-    this.courseDescription = '';
+  getCourseContentCount(courseId?: string): number {
+    if (!courseId) return 0;
+    return this.courseContentCount[courseId] ?? 0;
   }
 
-  saveCourseChanges(): void {
-    if (!this.editingCourse) return;
-
-    const updated = {
-      title: this.title,
-      description: this.courseDescription,
-      teacherId: this.editingCourse.teacherId
-    };
-
-    this.courseService.updateCourse(this.editingCourse._id!, updated).subscribe({
-      next: () => {
-        this.ngOnInit();
-        this.cancelEditing();
-      },
-      error: err => console.error('Erreur modification cours', err)
-    });
+  getCourseModuleCompletion(courseId?: string): number {
+    if (!courseId) return 0;
+    return this.courseModuleCompletionMap[courseId] ?? 0;
   }
 
-  getTeacherName(course: Course): string {
-    const teacher = course.teacherId;
-    if (teacher && typeof teacher === 'object') {
-      const name = (teacher as any).name;
-      const surname = (teacher as any).surname;
-      if (name && surname) return `${name} ${surname}`;
-    }
-    return `(Prof inconnu: ${teacher})`;
+  getViewedCount(module: Module): number {
+    if (!module?.contents?.length) return 0;
+    return module.contents.filter(c => !!this.viewedMap[c._id]).length;
   }
 
+  getCourseViewedCount(courseId: string): number {
+    const courseModules = this.modules.filter(m => m.courseId === courseId);
+    return courseModules.reduce((sum, m) => sum + this.getViewedCount(m), 0);
+  }
 
-
-
+  getTotalViewedCount(): number {
+    return this.totalViewedContents;
+  }
 }

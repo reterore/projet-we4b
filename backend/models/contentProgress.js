@@ -3,7 +3,7 @@ const mongoose = require('mongoose');
 const contentProgressSchema = new mongoose.Schema({
     studentId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     contentId: { type: mongoose.Schema.Types.ObjectId, ref: 'Content', required: true },
-    moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true }, // ✅ Ajout
+    moduleId: { type: mongoose.Schema.Types.ObjectId, ref: 'Module', required: true },
     isViewed: { type: Boolean, default: true },
     viewedAt: { type: Date, default: Date.now }
 });
@@ -11,4 +11,5 @@ const contentProgressSchema = new mongoose.Schema({
 // 🔒 Empêche les doublons (1 élève, 1 contenu max)
 contentProgressSchema.index({ studentId: 1, contentId: 1 }, { unique: true });
 
-module.exports = mongoose.model('ContentProgress', contentProgressSchema);
+// ✅ Correction ici : évite de redéfinir le modèle si déjà existant
+module.exports = mongoose.models.ContentProgress || mongoose.model('ContentProgress', contentProgressSchema);

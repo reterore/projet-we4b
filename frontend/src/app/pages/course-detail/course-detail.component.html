@@ -253,7 +253,7 @@
                 <div class="text-muted">🕒 Soumis le {{ s.submittedAt | date:'dd/MM/yyyy à HH:mm' }}</div>
                 <div *ngIf="s.grade !== null">
                   ✅ Note : <strong>{{ s.grade }}/20</strong>
-                  <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+                  <span *ngIf="s.comment"> | 💬 commentaire: {{ s.comment }}</span>
                 </div>
                 <div *ngIf="s.grade === null" class="text-warning">
                   ⌛ En attente de correction
@@ -310,8 +310,8 @@
               <div *ngIf="s.grade">
                 <!-- ✅ Partie à remplacer -->
                 <div *ngIf="!s.editing">
-                  ✅ Note : <strong>{{ s.grade }}/20</strong>
-                  <span *ngIf="s.comment">| 💬 {{ s.comment }}</span>
+                  ✅ Note : <strong>{{ s.grade }}/20 </strong>
+                  <span *ngIf="s.comment"> | 💬 commentaire: {{ s.comment }}</span>
                   <button class="btn btn-outline-secondary btn-sm ms-2" (click)="s.editing = true">✏ Modifier</button>
                 </div>
 

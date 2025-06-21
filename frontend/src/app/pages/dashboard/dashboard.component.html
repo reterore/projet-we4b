@@ -13,12 +13,10 @@
   <a routerLink="/dashboard">🏠 Accueil</a>
   <a routerLink="/select-courses">📚 Cours</a>
 
-  <!-- Menu spécifique aux étudiants -->
   <ng-container *ngIf="!isProf">
     <a routerLink="/student-assignments">📝 Mes résultats</a>
   </ng-container>
 
-  <!-- Menu spécifique aux professeurs -->
   <ng-container *ngIf="isProf">
     <a routerLink="/user-list">👥 Utilisateurs</a>
   </ng-container>
@@ -29,9 +27,8 @@
 <!-- Main content -->
 <div class="main-content">
   <div class="container-fluid">
-    <h2 class="mb-4"><br><br>Bienvenue {{ user?.surname }} {{ user?.name }} </h2>
+    <h2 class="mb-4"><br><br>Bienvenue {{ user?.surname }} {{ user?.name }}</h2>
 
-    <!-- Bouton de création visible uniquement pour les profs -->
     <div class="mb-3" *ngIf="isProf">
       <a class="btn btn-success" routerLink="/create-course">➕ Nouveau cours</a>
     </div>
@@ -50,20 +47,25 @@
               <h5 class="card-title">{{ course.title }}</h5>
               <p class="card-text">{{ course.description }}</p>
 
-              <!-- Bouton Accéder avec log -->
-              <a
-                [routerLink]="['/courses', course._id]"
-                class="btn btn-outline-primary"
-              >
-                Accéder
-              </a>
+              <!-- ✅ Progression pour étudiant -->
+              <div *ngIf="!isProf" class="mb-2">
+                <div class="progress" style="height: 20px;">
+                  <div class="progress-bar "
+                       role="progressbar"
+                       [style.width.%]="getCourseProgress(course._id!)">
+                    {{ getCourseProgress(course._id!) }}%
+                    ({{ getCourseViewedCount(course._id!) }}/{{ getCourseContentCount(course._id!) }})
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-1">
+                  {{ getCourseContentCount(course._id) }} contenu(s) au total
+                </small>
+              </div>
 
-              <!-- Bouton Modifier si profs -->
-              <a
-                *ngIf="isProf"
-                class="btn btn-outline-secondary ms-2"
-                [routerLink]="['/edit-course', course._id]"
-              >
+              <a [routerLink]="['/courses', course._id]" class="btn btn-outline-primary mt-2">Accéder</a>
+              <a *ngIf="isProf"
+                 class="btn btn-outline-secondary ms-2 mt-2"
+                 [routerLink]="['/edit-course', course._id]">
                 Modifier
               </a>
             </div>
@@ -71,6 +73,15 @@
         </div>
       </div>
     </ng-template>
+
+    <!-- ✅ Total global -->
+    <div *ngIf="!isProf" class="mt-4 text-center">
+      <hr>
+      <p class="text-muted">
+        Total de contenus vus par l’élève : <strong>{{ getTotalViewedCount() }}</strong>
+      </p>
+    </div>
+
   </div>
 </div>
 </body>

@@ -76,4 +76,29 @@ router.get('/:studentId/:moduleId', async (req, res) => {
     }
 });
 
+// GET /progress/:studentId/:courseId
+router.get('/:studentId/:courseId', async (req, res) => {
+    const { studentId, courseId } = req.params;
+    try {
+        const modules = await Module.find({ courseId });
+        const moduleIds = modules.map(m => m._id);
+
+        let totalContents = 0;
+        let totalViewed = 0;
+
+        for (const moduleId of moduleIds) {
+            const contentCount = await Content.countDocuments({ moduleId });
+            const viewedCount = await ContentProgress.countDocuments({ moduleId, studentId });
+            totalContents += contentCount;
+            totalViewed += viewedCount;
+        }
+
+        const percentage = totalContents === 0 ? 0 : Math.round((totalViewed / totalContents) * 100);
+        res.json({ courseId, percentage });
+    } catch (err) {
+        console.error('Erreur progression cours', err);
+        res.status(500).json({ error: 'Erreur serveur progression cours' });
+    }
+});
+
 module.exports = router;
