@@ -183,26 +183,6 @@
           <div class="alert alert-light">Aucun message encore posté.</div>
         </ng-template>
 
-        <!-- Modale création forum -->
-        <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showForumModal">
-          <div class="modal-dialog">
-            <div class="modal-content">
-              <div class="modal-header">
-                <h5 class="modal-title">Créer un nouveau forum</h5>
-                <button type="button" class="btn-close" (click)="showForumModal = false"></button>
-              </div>
-              <div class="modal-body">
-                <input [(ngModel)]="newForumTitle" class="form-control" placeholder="Nom du forum" />
-              </div>
-              <div class="modal-footer">
-                <button class="btn btn-secondary" (click)="showForumModal = false">Annuler</button>
-                <button class="btn btn-primary" [disabled]="!newForumTitle.trim()" (click)="submitForum()">Créer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-
         <!-- Champ de message -->
         <div class="mt-2">
         <textarea
@@ -222,6 +202,32 @@
       </div>
     </div>
   </div>
+
+  <!-- ✅ Modale création forum (en dehors du *ngFor) -->
+  <div class="modal fade" id="forumModal" tabindex="-1" [class.show]="showForumModal" [ngStyle]="{ display: showForumModal ? 'block' : 'none' }">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Créer un nouveau forum</h5>
+          <button type="button" class="btn-close" (click)="showForumModal = false"></button>
+        </div>
+        <div class="modal-body">
+          <input [(ngModel)]="newForumTitle" class="form-control" placeholder="Nom du forum" />
+        </div>
+        <div class="modal-footer">
+          <button class="btn btn-secondary" (click)="showForumModal = false">Annuler</button>
+          <button
+            class="btn btn-primary"
+            [disabled]="!newForumTitle.trim()"
+            (click)="submitForum()"
+          >
+            Créer
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <!-- Devoirs -->
   <div class="card mb-4 shadow-sm">
