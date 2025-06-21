@@ -171,7 +171,4 @@ export class DashboardComponent implements OnInit {
     return courseModules.reduce((sum, m) => sum + this.getViewedCount(m), 0);
   }
 
-  getTotalViewedCount(): number {
-    return this.totalViewedContents;
-  }
 }
