@@ -19,6 +19,7 @@ import { CourseFormComponent } from './pages/course-form/course-form.component';
 import { SelectCoursesComponent } from './pages/select-courses/select-courses.component';
 import { UserListComponent } from './pages/user-list/user-list.component';
 import { CreateCourseComponent } from './pages/create-course/create-course.component';
+import { StudentAssignmentsComponent } from './pages/student-assignments/student-assignments.component';
 
 
 @NgModule({
@@ -37,7 +38,8 @@ import { CreateCourseComponent } from './pages/create-course/create-course.compo
     EditCourseComponent,
     CourseFormComponent,
     UserListComponent,
-    CreateCourseComponent
+    CreateCourseComponent,
+    StudentAssignmentsComponent
   ],
   imports: [
     BrowserModule,

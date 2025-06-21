@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 const submissionSchema = require('./Submission');
 
 const assignmentSchema = new mongoose.Schema({
@@ -10,6 +11,10 @@ const assignmentSchema = new mongoose.Schema({
     dueDate: {
         type: Date,
         required: true
+    },
+    moduleId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Module'   // 👈 référence au modèle Module
     },
     courseId: {
         type: mongoose.Schema.Types.ObjectId,

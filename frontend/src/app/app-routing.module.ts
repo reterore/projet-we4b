@@ -16,6 +16,7 @@ import { UserListComponent } from "./pages/user-list/user-list.component";
 import {CreateCourseComponent } from './pages/create-course/create-course.component';
 
 import { AuthGuard } from './guards/auth.guard';
+import {StudentAssignmentsComponent} from "./pages/student-assignments/student-assignments.component";
 
 const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
@@ -37,6 +38,7 @@ const routes: Routes = [
   { path: 'edit-user/:id', component: EditUserComponent, canActivate: [AuthGuard, AuthGuard] },
   { path: 'edit-course/:id', component: EditCourseComponent, canActivate: [AuthGuard, AuthGuard] },
   { path: 'create-course', component: CreateCourseComponent, canActivate: [AuthGuard, AuthGuard] },
+  { path: 'student-assignments', component: StudentAssignmentsComponent },
 
 
   { path: '**', redirectTo: 'login' } // !!! Toujours laisser à la fin !!!

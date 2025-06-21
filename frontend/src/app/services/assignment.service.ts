@@ -9,6 +9,7 @@ export interface Assignment {
   dueDate: string;
   description: string;
   submissions: Submission[];
+  moduleId?: any;
 }
 
 export interface Submission {
@@ -27,6 +28,14 @@ export interface Submission {
   comment: string | null;
   submittedAt: string;
 }
+
+export interface AssignmentSummary {
+  title: string;
+  courseTitle: string;
+  moduleTitle: string;
+  submission: Submission;
+}
+
 
 @Injectable({
   providedIn: 'root'
@@ -57,4 +66,9 @@ export class AssignmentService {
   updateSubmission(assignmentId: string, submissionId: string, data: FormData) {
     return this.http.put(`${this.baseUrl}/${assignmentId}/submission/${submissionId}`, data);
   }
+  getAssignmentsByStudent(studentId: string): Observable<AssignmentSummary[]> {
+    return this.http.get<AssignmentSummary[]>(`${this.baseUrl}/student/${studentId}`);
+  }
+
+
 }

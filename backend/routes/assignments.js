@@ -3,7 +3,7 @@ const router = express.Router();
 const Assignment = require('../models/Assignment');
 const multer = require('multer');
 const path = require('path');
-
+const assignmentController = require('../controllers/assignmentController');
 
 // ✅ Créer un devoir (enseignant)
 router.post('/', async (req, res) => {
@@ -149,4 +149,6 @@ router.put('/:assignmentId/submission/:submissionId', upload.single('file'), asy
         res.status(500).send(err.message);
     }
 });
+
+router.get('/student/:studentId', assignmentController.getAssignmentsByStudent);
 
