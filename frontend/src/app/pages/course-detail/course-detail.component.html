@@ -17,61 +17,92 @@
       <div *ngIf="modules.length === 0">
         <p class="alert alert-warning">Aucun contenu pédagogique disponible.</p>
       </div>
+
       <ul class="list-group" *ngIf="modules.length > 0">
-        <div *ngFor="let m of modules" class="card mb-3">
-          <div class="card-header d-flex justify-content-between align-items-center bg-light" style="cursor: pointer;" (click)="toggleModule(m._id!)">
-            <strong>{{ m.title }}</strong>
-            <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
-              <button class="btn btn-outline-secondary" (click)="startEditing(m)">✏️</button>
-              <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
+        <li *ngFor="let m of modules" class="list-group-item p-0 border-0">
+          <div class="card mb-3">
+            <div class="card-header d-flex justify-content-between align-items-center bg-light" style="cursor: pointer;" (click)="toggleModule(m._id!)">
+              <strong>{{ m.title }}</strong>
+              <div *ngIf="!isProf" class="w-50 ms-3">
+                <div class="progress">
+                  <div class="progress-bar " role="progressbar"
+                       [style.width.%]="getProgressPercentage(m)">
+                    {{ getProgressPercentage(m) }}%
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="isProf" class="btn-group btn-group-sm" (click)="$event.stopPropagation()">
+                <button class="btn btn-outline-secondary" (click)="startEditing(m)">✏️</button>
+                <button class="btn btn-outline-danger" (click)="deleteModule(m._id!)">🗑</button>
+              </div>
             </div>
-          </div>
-          <div *ngIf="openedModuleId === m._id" class="card-body border-top">
-            <div *ngIf="editingModuleId === m._id">
-              <input [(ngModel)]="editModuleTitle" class="form-control mb-2" />
-              <button class="btn btn-sm btn-success me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
-              <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">Annuler</button>
-            </div>
-            <div *ngIf="editingModuleId !== m._id">
-              <div *ngIf="m.contents && m.contents.length > 0; else noContent">
-                <div *ngFor="let c of m.contents" class="border rounded p-2 mb-2 bg-light">
-                  <strong>{{ c.title }}</strong>
 
-                  <!-- Texte en mode lecture -->
-                  <div *ngIf="editingContentId !== c._id && c.type === 'text'">
-                    <p>{{ c.text }}</p>
-                  </div>
+            <div *ngIf="openedModuleId === m._id" class="card-body border-top">
+              <div *ngIf="editingModuleId === m._id">
+                <input [(ngModel)]="editModuleTitle" class="form-control mb-2" />
+                <button class="btn btn-sm btn-success me-2" (click)="saveEdit(m._id!)">💾 Enregistrer</button>
+                <button class="btn btn-sm btn-secondary" (click)="cancelEdit()">Annuler</button>
+              </div>
 
-                  <!-- Texte en mode édition -->
-                  <div *ngIf="editingContentId === c._id && c.type === 'text'" class="mb-2">
-                    <input [(ngModel)]="editedContentTitle" class="form-control mb-1" />
-                    <textarea [(ngModel)]="editedContentText" class="form-control mb-2"></textarea>
-                    <button class="btn btn-success btn-sm me-1" (click)="saveContentEdit(c)">💾 Enregistrer</button>
-                    <button class="btn btn-secondary btn-sm" (click)="cancelEditContent()">Annuler</button>
-                  </div>
+              <div *ngIf="editingModuleId !== m._id">
+                <div *ngIf="m.contents && m.contents.length > 0; else noContent">
+                  <div *ngFor="let c of m.contents" class="border rounded p-2 mb-2 bg-light">
+                    <div *ngIf="c.type === 'text'">
+                      <p>{{ c.title }}</p>
+                      <!-- Ne montre le bouton que si le contenu n'est pas encore vu -->
+                      <button
+                        *ngIf="!isProf && c.type === 'text' && !viewedMap[c._id!]"
+                        class="btn btn-sm btn-outline-success"
+                        (click)="markContentAsViewed(c._id!)">
+                        ✅ Marquer comme vu
+                      </button>
 
-                  <!-- Fichier -->
-                  <div *ngIf="c.type === 'file'">
-                    <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">
-                      📎 Voir le fichier
-                    </a>
-                  </div>
+                    </div>
 
-                  <!-- Boutons action -->
-                  <div *ngIf="isProf && editingContentId !== c._id" class="mt-2">
-                    <button *ngIf="c.type === 'text'" class="btn btn-outline-secondary btn-sm me-1" (click)="startEditingContent(c)">✏Modifier</button>
-                    <button class="btn btn-outline-danger btn-sm" (click)="deleteContent(c, m)">Supprimer</button>
+                    <!-- Texte -->
+                    <div *ngIf="editingContentId !== c._id && c.type === 'text'" (click)="!isProf && markContentAsViewed(c._id!)">
+                      <p>{{ c.text }}</p>
+                    </div>
+
+                    <!-- Texte en édition -->
+                    <div *ngIf="editingContentId === c._id && c.type === 'text'" class="mb-2">
+                      <input [(ngModel)]="editedContentTitle" class="form-control mb-1" />
+                      <textarea [(ngModel)]="editedContentText" class="form-control mb-2"></textarea>
+                      <button class="btn btn-success btn-sm me-1" (click)="saveContentEdit(c)">💾 Enregistrer</button>
+                      <button class="btn btn-secondary btn-sm" (click)="cancelEditContent()">Annuler</button>
+                    </div>
+
+                    <!-- Fichier -->
+                    <div *ngIf="c.type === 'file'" class="d-flex align-items-center gap-2">
+                      <a [href]="'http://localhost:3000/uploads/' + c.file?.filename"
+                         target="_blank"
+                         class="btn btn-sm btn-outline-primary"
+                         (click)="!isProf && markContentAsViewed(c._id!)">
+                        {{ c.title }}
+                      </a>
+                      <span *ngIf="!isProf" class="badge"
+                            [ngClass]="viewedMap[c._id!] ? 'bg-success' : 'bg-warning text-dark'">
+                            {{ viewedMap[c._id!] ? 'Vu' : 'À voir' }}
+                      </span>
+                    </div>
+
+                    <!-- Actions prof -->
+                    <div *ngIf="isProf && editingContentId !== c._id" class="mt-2">
+                      <button *ngIf="c.type === 'text'" class="btn btn-outline-secondary btn-sm me-1" (click)="startEditingContent(c)">✏ Modifier</button>
+                      <button class="btn btn-outline-danger btn-sm" (click)="deleteContent(c, m)">Supprimer</button>
+                    </div>
                   </div>
                 </div>
 
+                <ng-template #noContent>
+                  <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
+                </ng-template>
+
+                <button *ngIf="isProf" class="btn btn-outline-primary btn-sm mt-2" (click)="startAddContent(m._id!)">➕ Ajouter un contenu</button>
               </div>
-              <ng-template #noContent>
-                <p class="text-muted">Aucun contenu dans ce module pour le moment.</p>
-              </ng-template>
-              <button *ngIf="isProf" class="btn btn-outline-primary btn-sm" (click)="startAddContent(m._id!)">➕ Ajouter un contenu</button>
             </div>
           </div>
-        </div>
+        </li>
       </ul>
     </div>
   </div>

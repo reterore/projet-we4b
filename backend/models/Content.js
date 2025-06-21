@@ -15,4 +15,5 @@ const contentSchema = new mongoose.Schema({
     createdAt: { type: Date, default: Date.now }
 });
 
-module.exports = mongoose.model('Content', contentSchema);
+// ✅ Évite les redéfinitions
+module.exports = mongoose.models.Content || mongoose.model('Content', contentSchema);

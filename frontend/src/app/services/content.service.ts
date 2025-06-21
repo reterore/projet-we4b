@@ -18,31 +18,47 @@ export interface Content {
   createdAt?: string;
 }
 
-
 @Injectable({
   providedIn: 'root'
 })
 export class ContentService {
-  private apiUrl = 'http://localhost:3000/api/contents';
+  private readonly apiUrl = 'http://localhost:3000/api/contents';
+  private readonly progressUrl = 'http://localhost:3000/api/progress';
+
   constructor(private http: HttpClient) {}
 
-  getContentsByCourse(courseId: string): Observable<Content[]> {
-    return this.http.get<Content[]>(`${this.apiUrl}/course/${courseId}`);
-  }
-  addContent(contentData: FormData) {
-    return this.http.post<Content>('http://localhost:3000/api/contents', contentData);
-  }
-
+  /** 📥 Récupère tous les contenus d’un module */
   getContentsByModule(moduleId: string): Observable<Content[]> {
     return this.http.get<Content[]>(`${this.apiUrl}/module/${moduleId}`);
   }
-  deleteContent(id: string): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${id}`);
+
+  /** 📥 (Facultatif) Récupère tous les contenus d’un cours */
+  getContentsByCourse(courseId: string): Observable<Content[]> {
+    return this.http.get<Content[]>(`${this.apiUrl}/course/${courseId}`);
   }
 
-  updateContent(id: string, data: { title: string; text: string }): Observable<Content> {
-    return this.http.put<Content>(`${this.apiUrl}/${id}`, data);
+  /** ➕ Ajoute un contenu (texte ou fichier via FormData) */
+  addContent(formData: FormData): Observable<Content> {
+    return this.http.post<Content>(this.apiUrl, formData);
   }
 
+  /** ❌ Supprime un contenu par son ID */
+  deleteContent(contentId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.apiUrl}/${contentId}`);
+  }
 
+  /** ✏️ Met à jour un contenu texte */
+  updateContent(contentId: string, data: { title: string; text: string }): Observable<Content> {
+    return this.http.put<Content>(`${this.apiUrl}/${contentId}`, data);
+  }
+
+  /** ✅ Marque un contenu comme vu */
+  markAsViewed(studentId: string, contentId: string): Observable<{ success: boolean }> {
+    return this.http.post<{ success: boolean }>(`${this.progressUrl}/view`, { studentId, contentId });
+  }
+
+  /** 👁️ Vérifie si un contenu a été vu */
+  isContentViewed(studentId: string, contentId: string): Observable<{ isViewed: boolean }> {
+    return this.http.get<{ isViewed: boolean }>(`${this.progressUrl}/check/${studentId}/${contentId}`);
+  }
 }

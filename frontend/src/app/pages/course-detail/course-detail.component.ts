@@ -6,6 +6,8 @@ import { AuthService } from 'src/app/services/auth.service';
 import { CourseService, Course } from 'src/app/services/course.service';
 import { ForumService, Forum, Message } from 'src/app/services/forum.service';
 import { Assignment, AssignmentService, Submission } from 'src/app/services/assignment.service';
+import { HttpClient } from '@angular/common/http';
+
 declare var bootstrap: any;
 
 type AssignmentWithTemp = Assignment & {
@@ -67,7 +69,9 @@ export class CourseDetailComponent implements OnInit {
   selectedAssignmentId: string | null = null;
   selectedSubmissionId: string | null = null;
   editedFile: File | null = null;
-
+  progressMap: Record<string, number> = {};        // moduleId => %
+  viewedMap: Record<string, boolean> = {};         // contentId => true/false
+  studentId: string = ''; // récupéré via AuthService
 
   constructor(
     private route: ActivatedRoute,
@@ -78,19 +82,19 @@ export class CourseDetailComponent implements OnInit {
     private router: Router,
     private forumService: ForumService,
     private logService: LogService,
-    private assignmentService: AssignmentService
+    private assignmentService: AssignmentService,
+    private http: HttpClient
   ) {}
 
   ngOnInit(): void {
     this.courseId = this.route.snapshot.paramMap.get('id')!;
     const user = this.auth.getUser();
+    this.studentId = user?._id || '';
     this.isProf = user?.role === 'teacher';
 
     this.courseService.getCourse(this.courseId).subscribe({
       next: c => {
         this.course = c;
-
-        // ✅ Log consultation de cours
         const user = this.auth.getUser();
         if (user && c._id) {
           this.logService.sendLog({
@@ -118,25 +122,21 @@ export class CourseDetailComponent implements OnInit {
       next: (a) => {
         this.assignments = a.map(assign => ({
           ...assign,
-          submissions: assign.submissions?.map(sub => {
-            const extendedSub: ExtendedSubmission = {
-              ...sub,
-              tempGrade: sub.grade ?? undefined,
-              tempComment: sub.comment ?? '',
-              editing: false
-            };
-            return extendedSub;
-          })
-
+          submissions: assign.submissions?.map(sub => ({
+            ...sub,
+            tempGrade: sub.grade ?? undefined,
+            tempComment: sub.comment ?? '',
+            editing: false
+          }))
         }));
-
       },
-      error: (err) => console.error('Erreur chargement devoirs', err)
+      error: err => console.error('Erreur chargement devoirs', err)
     });
 
     this.moduleService.getModulesByCourse(this.courseId).subscribe(mods => {
       this.modules = mods;
-      this.loadContentsForModules();
+      this.loadContentsForModules(); // chargement des contenus
+      this.loadProgressForAllModules(); // 🔁 chargement des progrès par module
     });
 
     this.forumService.getForumsByCourse(this.courseId).subscribe({
@@ -201,30 +201,49 @@ export class CourseDetailComponent implements OnInit {
   onFileSelected(event: Event) {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
-      this.selectedUpdateFile = input.files[0];
+      this.selectedFile = input.files[0];
     }
   }
 
-  submitContent() {
-    if (!this.currentModuleId || !this.newContentTitle) return;
+
+  submitContent(): void {
+    if (!this.currentModuleId || !this.newContentTitle.trim()) {
+      console.warn('❗ Module ou titre manquant');
+      return;
+    }
 
     const formData = new FormData();
-    formData.append('title', this.newContentTitle);
+    formData.append('title', this.newContentTitle.trim());
     formData.append('type', this.newContentType);
     formData.append('moduleId', this.currentModuleId);
 
     if (this.newContentType === 'text') {
-      formData.append('text', this.newContentText);
-    } else if (this.newContentType === 'file') {
-      if (this.selectedFile) {
-        formData.append('file', this.selectedFile);
-      } else {
+      if (!this.newContentText?.trim()) {
+        console.warn('❗ Contenu texte vide');
         return;
       }
+      formData.append('text', this.newContentText.trim());
+    } else if (this.newContentType === 'file') {
+      if (!this.selectedFile) {
+        console.error('❌ Aucun fichier sélectionné');
+        return;
+      }
+      formData.append('file', this.selectedFile);
+    } else {
+      console.error('❌ Type de contenu invalide :', this.newContentType);
+      return;
     }
+
+    console.log('📤 Envoi du contenu:', {
+      title: this.newContentTitle,
+      type: this.newContentType,
+      moduleId: this.currentModuleId,
+      file: this.selectedFile
+    });
 
     this.contentService.addContent(formData).subscribe({
       next: content => {
+        console.log('✅ Contenu ajouté avec succès :', content);
         const mod = this.modules.find(m => m._id === content.moduleId);
         if (mod) {
           if (!mod.contents) mod.contents = [];
@@ -232,9 +251,13 @@ export class CourseDetailComponent implements OnInit {
         }
         this.cancelAddContent();
       },
-      error: err => console.error('Erreur ajout contenu', err)
+      error: err => {
+        console.error('❌ Erreur ajout contenu :', err);
+        alert('Erreur lors de l\'ajout du contenu. Vérifie le fichier ou le serveur.');
+      }
     });
   }
+
 
   deleteModule(moduleId: string) {
     if (confirm('Voulez-vous vraiment supprimer ce module ?')) {
@@ -292,16 +315,27 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
-  deleteContent(content: Content, module: Module) {
-    if (confirm('Supprimer ce contenu ?')) {
-      this.contentService.deleteContent(content._id).subscribe({
-        next: () => {
-          module.contents = module.contents?.filter(c => c._id !== content._id);
-        },
-        error: err => console.error('Erreur suppression contenu', err)
-      });
-    }
+  deleteContent(content: Content, module: Module): void {
+    if (!confirm('Supprimer ce contenu ?')) return;
+
+    this.contentService.deleteContent(content._id).subscribe({
+      next: () => {
+        module.contents = (module.contents || []).filter(c => c._id !== content._id);
+        delete this.viewedMap[content._id];
+        this.updateProgress(module._id);
+      },
+      error: err => {
+        console.error('Erreur suppression contenu :', err);
+        if (err.status === 404) {
+          module.contents = (module.contents || []).filter(c => c._id !== content._id);
+        }
+        alert('Erreur lors de la suppression du contenu.');
+      }
+    });
   }
+
+
+
 
   updateSubmission(assignmentId: string, submissionId: string) {
     if (!this.selectedUpdateFile) {
@@ -507,6 +541,67 @@ export class CourseDetailComponent implements OnInit {
       }
     });
   }
+
+  loadProgressForAllModules(): void {
+    this.modules.forEach(module => {
+      this.moduleService.getModuleProgress(this.studentId, module._id).subscribe({
+        next: p => {
+          this.progressMap[module._id] = p.percentage;
+          module.contents?.forEach(c => {
+            this.contentService.isContentViewed(this.studentId, c._id).subscribe({
+              next: res => this.viewedMap[c._id] = res.isViewed,
+              error: err => console.warn(`⚠️ Erreur vue pour contenu ${c._id} :`, err)
+            });
+          });
+        },
+        error: err => console.error(`❌ Erreur progression pour module ${module._id} :`, err)
+      });
+    });
+  }
+
+  markContentAsViewed(contentId: string): void {
+    if (this.viewedMap[contentId]) return;
+
+    this.contentService.markAsViewed(this.studentId, contentId).subscribe({
+      next: () => {
+        this.viewedMap[contentId] = true;
+
+        // 🧠 Récupère le moduleId via contenu
+        const module = this.modules.find(m => m.contents?.some(c => c._id === contentId));
+        if (module) this.getProgressPercentage(module);
+      },
+      error: err => console.error(`❌ Erreur enregistrement vue contenu ${contentId} :`, err)
+    });
+  }
+
+  getViewedCount(module: Module): number {
+    if (!module?.contents?.length) return 0;
+    return module.contents.filter(c => !!this.viewedMap[c._id]).length;
+  }
+
+  getProgressPercentage(module: Module): number {
+    const total = module.contents?.length || 0;
+    const viewed = this.getViewedCount(module);
+    if (total === 0) return 0;
+    return Math.round((viewed / total) * 100);
+  }
+
+  updateProgress(moduleId: string): void {
+    if (!this.studentId || !moduleId) return;
+
+    this.moduleService.getModuleProgress(this.studentId, moduleId).subscribe({
+      next: progress => {
+        // on stocke directement le % venant du backend
+        this.progressMap[moduleId] = Math.min(Math.max(progress.percentage, 0), 100);
+      },
+      error: err => {
+        console.error(`❌ Erreur mise à jour progression module ${moduleId}`, err);
+      }
+    });
+  }
+
+
+
 
 //
 
