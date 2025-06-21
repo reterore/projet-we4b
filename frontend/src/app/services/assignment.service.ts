@@ -32,8 +32,10 @@ export interface Submission {
 export interface AssignmentSummary {
   title: string;
   courseTitle: string;
-  moduleTitle: string;
-  submission: Submission;
+  submission?: {
+    grade: number | null;
+    comment: string | null;
+  };
 }
 
 

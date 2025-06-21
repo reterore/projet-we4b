@@ -3,22 +3,25 @@
     <button class="btn btn-outline-secondary" (click)="goToDashboard()">Revenir au menu</button>
   </div>
 
-  <h3>📘 Mes Devoirs et Notes</h3>
+  <h3>📘 Mes Résultats</h3>
 
   <table class="table table-striped mt-3">
     <thead>
     <tr>
       <th>Cours</th>
-      <th>Module</th>
       <th>Devoir</th>
+      <th>Commentaire</th>
       <th>Note</th>
     </tr>
     </thead>
     <tbody>
     <tr *ngFor="let s of submissions">
       <td>{{ s.courseTitle }}</td>
-      <td>{{ s.moduleTitle }}</td>
       <td>{{ s.assignmentTitle }}</td>
+      <td>
+        <span *ngIf="s.comment">{{ s.comment }}</span>
+        <span *ngIf="!s.comment">Aucun commentaire</span>
+      </td>
       <td>
         <span *ngIf="s.grade !== null">{{ s.grade }}/20</span>
         <span *ngIf="s.grade === null">Non évalué</span>

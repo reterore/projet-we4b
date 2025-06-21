@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { AssignmentService} from 'src/app/services/assignment.service';
+import {AssignmentService, AssignmentSummary} from 'src/app/services/assignment.service';
 import { CourseService } from 'src/app/services/course.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { Router } from '@angular/router';
@@ -13,7 +13,7 @@ export class StudentAssignmentsComponent implements OnInit {
   submissions: {
     courseTitle: string;
     assignmentTitle: string;
-    moduleTitle?: string;
+    comment: string | null;
     grade: number | null;
   }[] = [];
 
@@ -30,18 +30,17 @@ export class StudentAssignmentsComponent implements OnInit {
     if (!user || user.role !== 'student') return;
 
     this.assignmentService.getAssignmentsByStudent(user._id).subscribe({
-      next: summaries => {
+      next: (summaries: AssignmentSummary[]) => {
         this.submissions = summaries.map(s => ({
           courseTitle: s.courseTitle,
           assignmentTitle: s.title,
-          moduleTitle: s.moduleTitle,
-          grade: s.submission?.grade ?? null
+          grade: s.submission?.grade ?? null,
+          comment: s.submission?.comment ?? null
         }));
-
-        console.log("🎯 Submissions finales :", this.submissions);
       },
       error: err => console.error('Erreur chargement devoirs :', err)
     });
+
   }
 
   goToDashboard(): void {
