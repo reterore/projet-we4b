@@ -85,12 +85,6 @@
                             {{ viewedMap[c._id!] ? 'Vu' : 'À voir' }}
                       </span>
                     </div>
-                  <!-- Fichier à ajouter -->
-                  <div *ngIf="c.type === 'file'">
-                    <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">
-                      📎 Voir le fichier
-                    </a>
-                  </div>
 
                     <!-- Actions prof -->
                     <div *ngIf="isProf && editingContentId !== c._id" class="mt-2">
