@@ -49,29 +49,6 @@ mongoose.connect('mongodb://localhost:27017/we4b')
             mathCourse = insertedCourses.find(c => c.title === 'Mathématiques');
         }
 
-        // 📂 Insertion de contenus pour "Mathématiques"
-        if (mathCourse) {
-            const existingContents = await Content.find({ courseId: mathCourse._id });
-            if (existingContents.length === 0) {
-                await Content.insertMany([
-                    {
-                        title: 'Chapitre 1 : Équations différentielles',
-                        description: 'Introduction aux équations différentielles du 1er ordre',
-                        fileUrl: '/uploads/equations.pdf',
-                        courseId: mathCourse._id
-                    },
-                    {
-                        title: 'Chapitre 2 : Séries de Fourier',
-                        description: 'Supports de cours sur les séries de Fourier et les applications',
-                        fileUrl: '/uploads/fourier.pdf',
-                        courseId: mathCourse._id
-                    }
-                ]);
-                console.log('📂 Contenus pédagogiques insérés pour Mathématiques');
-            } else {
-                console.log('📂 Contenus pédagogiques déjà présents pour Mathématiques');
-            }
-        }
 
     } catch (err) {
         console.error('❌ Erreur lors de l\'insertion :', err);

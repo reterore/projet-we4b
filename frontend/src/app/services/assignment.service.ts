@@ -51,8 +51,8 @@ export class AssignmentService {
     return this.http.get<Assignment[]>(`${this.baseUrl}/course/${courseId}`);
   }
 
-  createAssignment(assignment: { title: string; dueDate: string; description: string; courseId: string }): Observable<Assignment> {
-    return this.http.post<Assignment>(this.baseUrl, assignment);
+  createAssignment(data: any): Observable<any> {
+    return this.http.post<any>('http://localhost:3000/api/assignments', data);
   }
 
   submitAssignment(assignmentId: string, formData: FormData): Observable<any> {

@@ -38,3 +38,24 @@ exports.getAssignmentsByStudent = async (req, res) => {
     }
 };
 
+exports.getAllSubmissionsForAssignment = async (req, res) => {
+    try {
+        const assignment = await Assignment.findById(req.params.assignmentId)
+            .populate('courseId')
+            .populate('moduleId');
+
+        if (!assignment) return res.status(404).send('Devoir non trouvé');
+
+        res.json({
+            title: assignment.title,
+            course: assignment.courseId?.title,
+            module: assignment.moduleId?.title,
+            submissions: assignment.submissions
+        });
+    } catch (err) {
+        console.error("❌ Erreur getAllSubmissionsForAssignment :", err);
+        res.status(500).send("Erreur serveur");
+    }
+};
+
+

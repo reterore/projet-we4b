@@ -71,7 +71,7 @@ export class CourseDetailComponent implements OnInit {
   editedFile: File | null = null;
   progressMap: Record<string, number> = {};        // moduleId => %
   viewedMap: Record<string, boolean> = {};         // contentId => true/false
-  studentId: string = ''; // récupéré via AuthService
+  studentId = this.auth.getUser()?._id;
 
   constructor(
     private route: ActivatedRoute,
@@ -256,6 +256,10 @@ export class CourseDetailComponent implements OnInit {
         alert('Erreur lors de l\'ajout du contenu. Vérifie le fichier ou le serveur.');
       }
     });
+  }
+  hasSubmitted(assignment: any): boolean {
+    const studentId = this.auth.getUser()?._id;
+    return assignment.submissions?.some((s: any) => s.studentId === studentId);
   }
 
 
@@ -455,26 +459,25 @@ export class CourseDetailComponent implements OnInit {
   }
 
   submitNewAssignment() {
-    if (!this.newAssignmentTitle.trim() || !this.newAssignmentDueDate) return;
+    console.log('🚀 Fonction submitNewAssignment déclenchée');
 
     const newAssignment = {
-      title: this.newAssignmentTitle.trim(),
-      description: this.newAssignmentDescription.trim(),
+      title: this.newAssignmentTitle,
+      description: this.newAssignmentDescription,
       dueDate: this.newAssignmentDueDate,
       courseId: this.courseId
     };
 
     this.assignmentService.createAssignment(newAssignment).subscribe({
-      next: (created) => {
-        this.assignments.push(created);
+      next: (res) => {
+        console.log('✅ Devoir créé', res);
+        this.assignments.push(res);
         this.cancelAddAssignment();
       },
       error: (err) => {
-        console.error('Erreur création devoir', err);
-        alert('❌ Erreur lors de la création du devoir.');
+        console.error('❌ Erreur lors de la création du devoir', err);
       }
     });
-
   }
   deleteAssignment(assignmentId: string) {
     if (!confirm('Voulez-vous vraiment supprimer ce devoir ?')) return;
