@@ -26,7 +26,7 @@ export class DashboardComponent implements OnInit {
   allUsers: User[] = [];
   allCourses: Course[] = [];
   editingCourse: Course | null = null;
-  courseTitle = '';
+  title = '';
   courseDescription = '';
 
   constructor(
@@ -82,13 +82,13 @@ export class DashboardComponent implements OnInit {
 
   startEditing(course: Course): void {
     this.editingCourse = { ...course };
-    this.courseTitle = course.title;
+    this.title = course.title;
     this.courseDescription = course.description;
   }
 
   cancelEditing(): void {
     this.editingCourse = null;
-    this.courseTitle = '';
+    this.title = '';
     this.courseDescription = '';
   }
 
@@ -96,7 +96,7 @@ export class DashboardComponent implements OnInit {
     if (!this.editingCourse) return;
 
     const updated = {
-      title: this.courseTitle,
+      title: this.title,
       description: this.courseDescription,
       teacherId: this.editingCourse.teacherId
     };
@@ -119,6 +119,8 @@ export class DashboardComponent implements OnInit {
     }
     return `(Prof inconnu: ${teacher})`;
   }
+
+
 
 
 }

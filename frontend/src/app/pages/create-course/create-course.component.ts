@@ -3,6 +3,7 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { CourseService, Course } from 'src/app/services/course.service';
 import { AuthService } from 'src/app/services/auth.service';
 import { UserService } from 'src/app/services/user.service';
+import {LogEntry, LogService} from 'src/app/services/log.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -19,8 +20,10 @@ export class CreateCourseComponent implements OnInit {
     private courseService: CourseService,
     private userService: UserService,
     private auth: AuthService,
-    private router: Router
-  ) {}
+    private router: Router,
+    private logService: LogService
+  ) {
+  }
 
   ngOnInit(): void {
     const user = this.auth.getUser();
@@ -36,6 +39,7 @@ export class CreateCourseComponent implements OnInit {
       title: ['', Validators.required],
       description: ['']
     });
+
   }
 
   onSubmit(): void {
@@ -53,7 +57,27 @@ export class CreateCourseComponent implements OnInit {
           return;
         }
 
-        // 🔗 Ajouter le cours à la liste de l'enseignant (sans écraser les autres)
+        // ✅ Log de création du cours
+        const user = this.auth.getUser();
+        if (user) {
+          const logEntry: LogEntry = {
+            userId: user._id,
+            action: 'course_created',
+            details: {
+              courseId: createdCourse._id,
+              title: createdCourse.title,
+              email: user.email,
+              teacherName: `${user.name} ${user.surname}`,
+              time: new Date().toISOString()
+            }
+          };
+
+          this.logService.sendLog(logEntry).subscribe({
+            error: err => console.warn('⚠️ Erreur envoi log création cours :', err)
+          });
+        }
+
+        // 🔗 Associer le cours au prof
         this.userService.appendCourseToUser(this.teacherId, createdCourse._id).subscribe({
           next: () => this.router.navigate(['/dashboard']),
           error: err => console.error('❌ Erreur ajout cours à l\'enseignant :', err)
@@ -62,7 +86,8 @@ export class CreateCourseComponent implements OnInit {
       error: err => console.error('❌ Erreur création cours :', err)
     });
   }
-  goBack() {
+
+  goBack(): void {
     this.router.navigate(['/dashboard']);
   }
 }

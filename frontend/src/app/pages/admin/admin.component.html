@@ -13,6 +13,9 @@
     <li class="nav-item">
       <button class="nav-link" [class.active]="currentTab === 'logs'" (click)="setTab('logs')">Logs</button>
     </li>
+    <li class="nav-item">
+      <button class="nav-link" [class.active]="currentTab === 'dashboard'" (click)="setTab('dashboard')">dashboard</button>
+    </li>
   </ul>
 
   <!-- Utilisateurs -->
@@ -135,31 +138,157 @@
   <!-- Logs -->
   <div *ngIf="currentTab === 'logs'">
     <h4 class="mb-3">Historique des actions</h4>
+
+    <div class="mb-3">
+      <button class="btn btn-sm btn-outline-primary me-1" (click)="filterCategory = 'all'">Tous</button>
+      <button class="btn btn-sm btn-outline-success me-1" (click)="filterCategory = 'connexion'">Connexion</button>
+      <button class="btn btn-sm btn-outline-info me-1" (click)="filterCategory = 'cours'">Cours</button>
+      <button class="btn btn-sm btn-outline-secondary me-1" (click)="filterCategory = 'visite'">Visite</button>
+    </div>
+
     <div *ngIf="logError" class="alert alert-danger">Erreur lors du chargement des logs.</div>
-    <div *ngIf="!logError && logs.length === 0" class="alert alert-info">Aucun log enregistré.</div>
+    <div *ngIf="!logError && filteredLogs().length === 0" class="alert alert-info">Aucun log trouvé pour ce filtre.</div>
 
     <div class="table-responsive">
-      <table *ngIf="!logError && logs.length > 0" class="table table-hover table-bordered">
+      <table *ngIf="!logError && filteredLogs().length > 0" class="table table-hover table-bordered">
         <thead class="table-light">
-        <tr>
+        <!-- ALL -->
+        <tr *ngIf="filterCategory === 'all'">
+          <th>#</th>
+          <th>Action</th>
+          <th>Email</th>
+          <th>Date</th>
+        </tr>
+
+        <!-- CONNEXION -->
+        <tr *ngIf="filterCategory === 'connexion'">
           <th>#</th>
           <th>Action</th>
           <th>Email</th>
           <th>Rôle</th>
           <th>Date</th>
         </tr>
-        </thead>
-        <tbody>
-        <tr *ngFor="let log of logs; index as i">
-          <td>{{ i + 1 }}</td>
-          <td>{{ log.action }}</td>
-          <td>{{ parseDetail(log.details)?.email || '—' }}</td>
-          <td>{{ parseDetail(log.details)?.role || '—' }}</td>
-          <td>{{ parseDetail(log.details)?.time | date: 'short' || '—' }}</td>
+
+        <!-- COURS & VISITE -->
+        <tr *ngIf="filterCategory === 'cours' || filterCategory === 'visite'">
+          <th>#</th>
+          <th>Action</th>
+          <th>Email</th>
+          <th>Nom du cours</th>
+          <th>Date</th>
         </tr>
+        </thead>
+
+        <tbody>
+        <!-- ALL -->
+        <ng-container *ngIf="filterCategory === 'all'">
+          <tr *ngFor="let log of filteredLogs(); index as i">
+            <td>{{ i + 1 }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ parseDetail(log.details)?.email || '—' }}</td>
+            <td>{{ parseDetail(log.details)?.time | date: 'short' || '—' }}</td>
+          </tr>
+        </ng-container>
+
+        <!-- CONNEXION -->
+        <ng-container *ngIf="filterCategory === 'connexion'">
+          <tr *ngFor="let log of filteredLogs(); index as i">
+            <td>{{ i + 1 }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ parseDetail(log.details)?.email || '—' }}</td>
+            <td>{{ parseDetail(log.details)?.role || '—' }}</td>
+            <td>{{ parseDetail(log.details)?.time | date: 'short' || '—' }}</td>
+          </tr>
+        </ng-container>
+
+        <!-- COURS & VISITE -->
+        <ng-container *ngIf="filterCategory === 'cours' || filterCategory === 'visite'">
+          <tr *ngFor="let log of filteredLogs(); index as i">
+            <td>{{ i + 1 }}</td>
+            <td>{{ log.action }}</td>
+            <td>{{ parseDetail(log.details)?.email || '—' }}</td>
+            <td>{{ parseDetail(log.details)?.title || '—' }}</td>
+            <td>{{ parseDetail(log.details)?.time | date: 'short' || '—' }}</td>
+          </tr>
+        </ng-container>
         </tbody>
       </table>
     </div>
   </div>
+
+
+
+
+  <div *ngIf="currentTab === 'dashboard'">
+    <h4 class="mb-4">Statistiques des connexions</h4>
+
+    <!-- Partie 1 : Statistiques entre deux dates -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <strong>Connexions entre deux dates</strong>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="startDate">📅 Date de début :</label>
+            <input type="date" id="startDate" class="form-control" [(ngModel)]="startDate" />
+          </div>
+          <div class="col-md-4">
+            <label for="endDate">📅 Date de fin :</label>
+            <input type="date" id="endDate" class="form-control" [(ngModel)]="endDate" />
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-primary w-100" (click)="calculateLoginStats()">Calculer</button>
+          </div>
+        </div>
+
+        <div class="table-responsive" *ngIf="!logError && totalLogins !== 0">
+          <table class="table table-bordered table-sm text-center w-100">
+            <thead class="table-light">
+            <tr>
+              <th>Total de connexions</th>
+              <th>Moyenne par jour</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+              <td><strong>{{ totalLogins }}</strong></td>
+              <td><strong>{{ averageLogins | number: '1.1-1' }}</strong></td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Partie 2 : Statistiques sur les X dernières heures -->
+    <div class="card mb-4 shadow-sm">
+      <div class="card-header bg-secondary text-white">
+        <strong>Connexions récentes (sur les dernières heures)</strong>
+      </div>
+      <div class="card-body">
+        <div class="row mb-3">
+          <div class="col-md-4">
+            <label for="timeFrameHours">Nombre d'heures :</label>
+            <input type="number" id="timeFrameHours" class="form-control" [(ngModel)]="timeFrameHours" min="1" />
+          </div>
+          <div class="col-md-4 d-flex align-items-end">
+            <button class="btn btn-secondary w-100" (click)="calculateRecentLoginStats()">Afficher</button>
+          </div>
+          <div class="col-md-4 d-flex align-items-center">
+            <div *ngIf="!logError && recentLogins !== 0">
+              <span class="fw-bold">Résultat :</span> {{ recentLogins }} connexions sur les dernières {{ timeFrameHours }}h
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Messages d’erreur -->
+    <div *ngIf="logError" class="alert alert-danger">❌ Erreur lors du chargement des logs.</div>
+    <div *ngIf="!logError && logs.length === 0" class="alert alert-info">ℹ️ Aucun log enregistré.</div>
+  </div>
+
+
 
 </div>
