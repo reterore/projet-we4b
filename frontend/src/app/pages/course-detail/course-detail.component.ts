@@ -402,8 +402,6 @@ export class CourseDetailComponent implements OnInit {
     });
   }
 
-
-
   sendMessageToForum(forum: Forum & { newMessage?: string }) {
     const user = this.auth.getUser();
     if (!forum.newMessage?.trim() || !forum._id) return;
@@ -422,6 +420,7 @@ export class CourseDetailComponent implements OnInit {
       error: err => console.error('Erreur envoi message', err)
     });
   }
+
   onAssignmentFileSelected(event: any) {
     this.selectedAssignmentFile = event.target.files[0];
   }
