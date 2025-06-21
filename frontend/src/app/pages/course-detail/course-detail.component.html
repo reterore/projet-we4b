@@ -50,7 +50,7 @@
                     <button class="btn btn-secondary btn-sm" (click)="cancelEditContent()">Annuler</button>
                   </div>
 
-                  <!-- Fichier -->
+                  <!-- Fichier à ajouter -->
                   <div *ngIf="c.type === 'file'">
                     <a [href]="'http://localhost:3000/uploads/' + c.file?.filename" target="_blank" class="btn btn-sm btn-outline-primary">
                       📎 Voir le fichier
