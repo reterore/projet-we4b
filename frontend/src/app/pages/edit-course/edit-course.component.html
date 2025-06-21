@@ -20,7 +20,8 @@
 
             <div class="d-flex justify-content-end">
               <button type="button" class="btn btn-secondary me-2" (click)="cancel()">Annuler</button>
-              <button type="submit" class="btn btn-success" [disabled]="courseForm.invalid">💾 Enregistrer</button>
+              <button type="submit" class="btn btn-success me-2" [disabled]="courseForm.invalid">💾 Enregistrer</button>
+              <button type="button" class="btn btn-danger" (click)="deleteCourse()">🗑 Supprimer</button>
             </div>
           </form>
         </div>

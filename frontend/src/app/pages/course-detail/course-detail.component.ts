@@ -100,7 +100,7 @@ export class CourseDetailComponent implements OnInit {
               email: user.email,
               role: user.role,
               courseId: c._id,
-              courseTitle: c.title,
+              title: c.title,
               time: new Date().toISOString()
             }
           }).subscribe({

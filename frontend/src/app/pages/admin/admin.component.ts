@@ -16,7 +16,23 @@ export class AdminComponent implements OnInit {
   users: User[] = [];
   courses: Course[] = [];
   logs: LogEntry[] = [];
-  currentTab: 'users' | 'courses' | 'logs' = 'users';
+  currentTab: 'users' | 'courses' | 'logs' | 'dashboard' = 'users';
+
+  selectedAction = '';
+  selectedEmail = '';
+  selectedTeacherId = '';
+  selectedCourseId = '';
+  startDate = '';
+  endDate = '';
+  viewCountsByCourse: Record<string, number> = {};
+  viewCountsByTeacher: Record<string, number> = {};
+  timeFrameHours: number = 24;
+  averageLogins: number = 0;
+  filterCategory: string = 'all';
+  totalLogins: number = 0;
+  recentLogins: number = 0;
+
+
 
   newUser: Partial<User> = {};
 
@@ -36,7 +52,7 @@ export class AdminComponent implements OnInit {
   ngOnInit(): void {
     this.route.queryParams.subscribe(params => {
       const tab = params['tab'];
-      if (tab === 'users' || tab === 'courses' || tab === 'logs') {
+      if (tab === 'users' || tab === 'courses' || tab === 'logs' || tab === 'dashboard') {
         this.currentTab = tab;
       }
     });
@@ -46,7 +62,7 @@ export class AdminComponent implements OnInit {
     this.loadLogs();
   }
 
-  setTab(tab: 'users' | 'courses' | 'logs'): void {
+  setTab(tab: 'users' | 'courses' | 'logs' | 'dashboard'): void {
     this.currentTab = tab;
     this.router.navigate([], {
       relativeTo: this.route,
@@ -88,11 +104,48 @@ export class AdminComponent implements OnInit {
       next: logs => {
         this.logs = logs;
         this.logError = false;
+        this.aggregateCourseViews();
+        this.aggregateTeacherViews();
       },
       error: err => {
         console.error('❌ Erreur chargement logs :', err);
         this.logError = true;
         this.logs = [];
+      }
+    });
+  }
+
+  aggregateCourseViews(): void {
+    const start = this.startDate ? new Date(this.startDate) : null;
+    const end = this.endDate ? new Date(this.endDate) : null;
+    this.viewCountsByCourse = {};
+
+    this.logs.forEach(log => {
+      if (log.action !== 'course_view') return;
+      const details = this.parseDetail(log.details);
+      const time = details?.time ? new Date(details.time) : null;
+
+      if (start && time && time < start) return;
+      if (end && time && time > end) return;
+
+      const courseId = (details as any)?.courseId;
+      if (courseId) {
+        this.viewCountsByCourse[courseId] = (this.viewCountsByCourse[courseId] || 0) + 1;
+      }
+    });
+  }
+
+  aggregateTeacherViews(): void {
+    this.viewCountsByTeacher = {};
+    this.logs.forEach(log => {
+      if (log.action !== 'course_view') return;
+      const details = this.parseDetail(log.details);
+      const courseId = (details as any)?.courseId;
+      const course = this.courses.find(c => c._id === courseId);
+      const teacherId = course?.teacherId;
+
+      if (teacherId && typeof teacherId === 'string') {
+        this.viewCountsByTeacher[teacherId] = (this.viewCountsByTeacher[teacherId] || 0) + 1;
       }
     });
   }
@@ -147,19 +200,22 @@ export class AdminComponent implements OnInit {
       'name' in value && 'surname' in value;
   }
 
-  parseDetail(details: any): { email?: string; role?: string; time?: string } | null {
+  parseDetail(details: any): { email?: string; role?: string; time?: string; courseId?: string; title?: string } | null {
     try {
       const parsed = typeof details === 'string' ? JSON.parse(details) : details;
       return {
         email: parsed?.email,
         role: parsed?.role,
-        time: parsed?.time
+        time: parsed?.time,
+        courseId: parsed?.courseId,
+        title: parsed?.title || parsed?.title // pour être flexible
       };
     } catch (e) {
       console.warn('❗ Échec de parsing du détail du log :', details, e);
       return null;
     }
   }
+
 
   openCreateUserModal(): void {
     this.newUser = {};
@@ -188,4 +244,77 @@ export class AdminComponent implements OnInit {
       error: err => console.error('❌ Erreur création utilisateur :', err)
     });
   }
+
+  calculateLoginStats(): void {
+    if (!this.logs || this.logs.length === 0 || !this.startDate || !this.endDate) {
+      this.averageLogins = 0;
+      return;
+    }
+
+    const fromTime = new Date(this.startDate).getTime();
+    const toTime = new Date(this.endDate).getTime();
+
+    if (isNaN(fromTime) || isNaN(toTime) || fromTime > toTime) {
+      console.warn('❗ Dates invalides pour le calcul des connexions.');
+      this.averageLogins = 0;
+      return;
+    }
+
+    // Nombre de jours complets entre les deux dates
+    const days = Math.ceil((toTime - fromTime) / (1000 * 60 * 60 * 24));
+    if (days <= 0) {
+      this.averageLogins = 0;
+      return;
+    }
+
+    const loginLogs = this.logs.filter(log => {
+      const parsed = this.parseDetail(log.details);
+      const logTime = parsed?.time ? new Date(parsed.time).getTime() : null;
+      return log.action === 'login' && logTime !== null && logTime >= fromTime && logTime <= toTime;
+    });
+
+    this.averageLogins = loginLogs.length / days;
+    this.totalLogins = loginLogs.length;
+    this.averageLogins = loginLogs.length / days;
+  }
+
+
+  filteredLogs(): any[] {
+    if (!this.logs || this.logs.length === 0) return [];
+
+    return this.logs.filter(log => {
+      const action = log.action.toLowerCase();
+
+      switch (this.filterCategory) {
+        case 'connexion':
+          return action.includes('login') || action.includes('logout');
+        case 'cours':
+          return ['course_created', 'course_updated', 'course_deleted'].some(type => action.includes(type));
+        case 'visite':
+          return action.includes('visit') || action.includes('view');
+        case 'all':
+        default:
+          return true;
+      }
+    });
+  }
+
+  calculateRecentLoginStats(): void {
+    if (!this.logs || this.logs.length === 0 || !this.timeFrameHours) {
+      this.recentLogins = 0;
+      return;
+    }
+
+    const now = new Date().getTime();
+    const fromTime = now - this.timeFrameHours * 60 * 60 * 1000;
+
+    const loginLogs = this.logs.filter(log => {
+      const parsed = this.parseDetail(log.details);
+      const logTime = parsed?.time ? new Date(parsed.time).getTime() : null;
+      return log.action === 'login' && logTime !== null && logTime >= fromTime;
+    });
+
+    this.recentLogins = loginLogs.length;
+  }
+
 }

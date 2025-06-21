@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, catchError, of } from 'rxjs';
 
 export interface LogEntry {
   userId: string;
-  action: string;
+  action: 'login' | 'logout' | 'course_view' | 'course_created' | 'course_deleted' | 'course_updated';
   details?: Record<string, any>;
   createdAt?: string;
 }
@@ -13,7 +13,7 @@ export interface LogEntry {
   providedIn: 'root'
 })
 export class LogService {
-  private readonly API_URL = 'http://localhost:3000/api/logs'; // Assure-toi que cette URL est correcte
+  private readonly API_URL = 'http://localhost:3000/api/logs';
 
   constructor(private http: HttpClient) {}
 
@@ -22,13 +22,23 @@ export class LogService {
    * @param entry Objet contenant userId, action, et éventuellement des détails
    */
   sendLog(entry: LogEntry): Observable<LogEntry> {
-    return this.http.post<LogEntry>(this.API_URL, entry);
+    return this.http.post<LogEntry>(this.API_URL, entry).pipe(
+      catchError(err => {
+        console.warn('⚠️ Erreur lors de l’envoi du log :', err);
+        return of({} as LogEntry); // Ne bloque pas l'app
+      })
+    );
   }
 
   /**
    * Récupère tous les logs du backend
    */
   getAllLogs(): Observable<LogEntry[]> {
-    return this.http.get<LogEntry[]>(this.API_URL);
+    return this.http.get<LogEntry[]>(this.API_URL).pipe(
+      catchError(err => {
+        console.error('❌ Erreur récupération des logs :', err);
+        return of([]);
+      })
+    );
   }
 }
