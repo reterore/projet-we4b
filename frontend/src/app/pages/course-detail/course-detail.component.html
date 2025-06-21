@@ -11,7 +11,7 @@
   <div class="card mb-4 shadow-sm">
     <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
       <h5 class="mb-0">Modules pédagogiques</h5>
-      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter</button>
+      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showModuleModal = true">➕ Ajouter un module</button>
     </div>
     <div class="card-body">
       <div *ngIf="modules.length === 0">
@@ -120,14 +120,75 @@
     </div>
   </div>
 
-  <!-- Forum -->
+  <!-- Forums de discussion -->
   <div class="card mb-4 shadow-sm">
-    <div class="card-header bg-info text-white">
-      <h5 class="mb-0">Forum de discussion</h5>
+    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+      <h5 class="mb-0">Forums de discussion</h5>
+
+      <!-- Bouton d'ouverture de modale -->
+      <button *ngIf="isProf" class="btn btn-light btn-sm" (click)="showForumModal = true">➕ Nouveau forum</button>
     </div>
+
     <div class="card-body">
-      <p>Fonctionnalité à venir : ici les étudiants et enseignants pourront échanger sur le contenu du cours.</p>
-      <div class="alert alert-secondary">🔧 En cours de développement…</div>
+      <!-- Si aucun forum -->
+      <div *ngIf="forums.length === 0" class="alert alert-secondary">
+        Aucun forum n’a encore été créé pour ce cours.
+      </div>
+
+      <!-- Liste des forums -->
+      <div *ngFor="let forum of forums" class="mb-4 border rounded p-3 bg-light">
+        <h6 class="text-primary">{{ forum.title }}</h6>
+
+        <!-- Messages -->
+        <div *ngIf="forum.messages.length > 0; else noMessages">
+          <ul class="list-group mb-2">
+            <li class="list-group-item" *ngFor="let msg of forum.messages">
+              <strong>{{ msg.author }}</strong> : {{ msg.content }}
+              <span class="text-muted float-end">{{ msg.timestamp | date:'dd/MM/yyyy HH:mm:ss' }}</span>
+            </li>
+          </ul>
+        </div>
+        <ng-template #noMessages>
+          <div class="alert alert-light">Aucun message encore posté.</div>
+        </ng-template>
+
+        <!-- Modale création forum -->
+        <div class="modal fade show" tabindex="-1" style="display: block;" *ngIf="showForumModal">
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title">Créer un nouveau forum</h5>
+                <button type="button" class="btn-close" (click)="showForumModal = false"></button>
+              </div>
+              <div class="modal-body">
+                <input [(ngModel)]="newForumTitle" class="form-control" placeholder="Nom du forum" />
+              </div>
+              <div class="modal-footer">
+                <button class="btn btn-secondary" (click)="showForumModal = false">Annuler</button>
+                <button class="btn btn-primary" [disabled]="!newForumTitle.trim()" (click)="submitForum()">Créer</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+
+        <!-- Champ de message -->
+        <div class="mt-2">
+        <textarea
+          [(ngModel)]="forum.newMessage"
+          rows="2"
+          class="form-control mb-2"
+          placeholder="Écrire un message..."
+        ></textarea>
+          <button
+            class="btn btn-primary btn-sm"
+            (click)="sendMessageToForum(forum)"
+            [disabled]="!forum.newMessage?.trim()"
+          >
+            Envoyer
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
