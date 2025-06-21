@@ -37,7 +37,6 @@
                 <div *ngFor="let c of m.contents" class="border rounded p-2 mb-2 bg-light">
                   <strong>{{ c.title }}</strong>
 
-
                   <!-- Texte en mode lecture -->
                   <div *ngIf="editingContentId !== c._id && c.type === 'text'">
                     <p>{{ c.text }}</p>
