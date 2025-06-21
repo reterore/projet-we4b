@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
   title = 'frontend';
 
   // Injection de LogService
+  //test
   constructor(
     private auth: AuthService,
     private router: Router,
