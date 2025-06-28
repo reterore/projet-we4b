@@ -8,8 +8,6 @@ const contentProgressSchema = new mongoose.Schema({
     viewedAt: { type: Date, default: Date.now }
 });
 
-// 🔒 Empêche les doublons (1 élève, 1 contenu max)
 contentProgressSchema.index({ studentId: 1, contentId: 1 }, { unique: true });
 
-// ✅ Correction ici : évite de redéfinir le modèle si déjà existant
 module.exports = mongoose.models.ContentProgress || mongoose.model('ContentProgress', contentProgressSchema);

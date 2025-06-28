@@ -43,16 +43,4 @@ export class CourseService {
     return this.http.get<Course>(`${this.apiUrl}/${id}`);
   }
 
-  getTeacherName(course: Course): string {
-    const teacher = course.teacherId;
-    if (teacher && typeof teacher === 'object' && 'name' in teacher && 'surname' in teacher) {
-      return `${teacher.name} ${teacher.surname}`;
-    }
-    return `(ID: ${teacher})`;
-  }
-
-  // Optionnel si besoin
-  getCoursesByTeacher(teacherId: string): Observable<Course[]> {
-    return this.http.get<Course[]>(`${this.apiUrl}?teacherId=${teacherId}`);
-  }
 }

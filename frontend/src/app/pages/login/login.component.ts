@@ -51,7 +51,6 @@ export class LoginComponent {
         this.message = 'Connexion réussie. Redirection...';
         this.messageType = 'success';
 
-        // ✅ Log de connexion
         this.logService.sendLog({
           userId: user._id,
           action: 'login',
@@ -64,7 +63,6 @@ export class LoginComponent {
           error: err => console.warn('⚠️ Échec enregistrement log', err)
         });
 
-        // ✅ Redirection selon rôle
         setTimeout(() => {
           const role = user.role;
           if (role === 'admin') {

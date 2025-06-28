@@ -4,7 +4,6 @@ const Log = require('../models/Log');
 const LOG_ACTIONS = ['login', 'logout', 'course_view', 'user_deleted', 'course_created', 'course_updated'];
 
 async function logAction(userId, action, details = {}) {
-    // Vérifications de base
     if (!userId || !mongoose.Types.ObjectId.isValid(userId)) {
         console.warn('⚠️ userId invalide ou manquant :', userId);
         return;

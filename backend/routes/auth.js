@@ -4,31 +4,26 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
 
-// 🔐 Connexion (login)
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        // Vérifier existence utilisateur
         const user = await User.findOne({ email });
         if (!user) {
             return res.status(401).json({ error: 'Utilisateur non trouvé' });
         }
 
-        // Vérifier mot de passe
         const isMatch = await bcrypt.compare(password, user.passwordHash);
         if (!isMatch) {
             return res.status(401).json({ error: 'Mot de passe invalide' });
         }
 
-        // Créer JWT
         const token = jwt.sign(
             { userId: user._id, role: user.role },
             process.env.JWT_SECRET || 'SECRET',
             { expiresIn: '1d' }
         );
 
-        // Réponse
         res.json({
             token,
             user: {
@@ -45,7 +40,6 @@ router.post('/login', async (req, res) => {
     }
 });
 
-// 📝 Inscription (register)
 router.post('/register', async (req, res) => {
     try {
         const { name, surname, email, password, role } = req.body;

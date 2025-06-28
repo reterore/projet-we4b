@@ -32,7 +32,7 @@ const userSchema = new mongoose.Schema({
         ref: 'Course'
     }]
 }, {
-    timestamps: true // facultatif : ajoute createdAt et updatedAt
+    timestamps: true
 });
 
 module.exports = mongoose.model('User', userSchema);

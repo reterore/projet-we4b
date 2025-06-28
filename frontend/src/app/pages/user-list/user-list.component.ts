@@ -47,7 +47,7 @@ export class UserListComponent implements OnInit {
         if (this.isProf) {
           this.loadAllUsers();
         } else {
-          console.warn('🚫 Accès refusé : seuls les enseignants peuvent voir cette page.');
+          console.warn('Accès refusé : seuls les enseignants peuvent voir cette page.');
           this.router.navigate(['/dashboard']);
         }
       },

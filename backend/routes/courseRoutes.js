@@ -12,7 +12,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ✅ GET one course by ID with teacher info
 router.get('/:id', async (req, res) => {
     try {
         const course = await Course.findById(req.params.id).populate('teacherId', 'name surname');
@@ -26,7 +25,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// ✅ POST create a course
 router.post('/', async (req, res) => {
     try {
         const { title, description, teacherId } = req.body;
@@ -39,7 +37,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ PUT update course by ID
 router.put('/:id', async (req, res) => {
     try {
         const course = await Course.findByIdAndUpdate(req.params.id, req.body, {
@@ -57,7 +54,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// ✅ DELETE course by ID
 router.delete('/:id', async (req, res) => {
     try {
         const course = await Course.findByIdAndDelete(req.params.id);

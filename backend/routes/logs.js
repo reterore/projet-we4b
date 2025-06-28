@@ -5,11 +5,9 @@ const router = express.Router();
 const Log = require('../models/Log');
 const { LOG_ACTIONS } = require('../models/Log'); // si enum exportée
 
-// ✅ POST /api/logs — Création d’un log
 router.post('/', async (req, res) => {
     const { userId, action, details } = req.body;
 
-    // Validation basique
     if (!userId || !action) {
         return res.status(400).json({ error: 'Les champs userId et action sont requis.' });
     }
@@ -31,7 +29,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ GET /api/logs — Liste triée des logs
 router.get('/', async (req, res) => {
     try {
         const logs = await Log.find().sort({ createdAt: -1 }).populate('userId', 'email role');

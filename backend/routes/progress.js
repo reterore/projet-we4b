@@ -3,7 +3,6 @@ const router = express.Router();
 const ContentProgress = require('../models/contentProgress');
 const Content = require('../models/Content');
 
-// 📊 GET - Récupérer le % de progression pour un module
 router.get('/:studentId/:moduleId', async (req, res) => {
     const { studentId, moduleId } = req.params;
     try {
@@ -17,7 +16,6 @@ router.get('/:studentId/:moduleId', async (req, res) => {
     }
 });
 
-// 👁️ GET - Vérifie si un contenu a été vu
 router.get('/check/:studentId/:contentId', async (req, res) => {
     const { studentId, contentId } = req.params;
     try {
@@ -29,7 +27,6 @@ router.get('/check/:studentId/:contentId', async (req, res) => {
     }
 });
 
-// ✅ POST - Marquer un contenu comme vu
 router.post('/view', async (req, res) => {
     const { studentId, contentId } = req.body;
     try {
@@ -52,7 +49,6 @@ router.post('/view', async (req, res) => {
     }
 });
 
-// ✅ Correction robuste
 router.get('/:studentId/:moduleId', async (req, res) => {
     const { studentId, moduleId } = req.params;
     try {
@@ -76,7 +72,6 @@ router.get('/:studentId/:moduleId', async (req, res) => {
     }
 });
 
-// GET /progress/:studentId/:courseId
 router.get('/:studentId/:courseId', async (req, res) => {
     const { studentId, courseId } = req.params;
     try {

@@ -4,7 +4,6 @@ const User = require('../models/User');
 const bcrypt = require('bcrypt');
 const mongoose = require('mongoose');
 
-// ✅ GET : un utilisateur par ID
 router.get('/:id', async (req, res) => {
     const userId = req.params.id;
     if (!mongoose.Types.ObjectId.isValid(userId)) {
@@ -21,7 +20,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// ✅ GET tous les utilisateurs
 router.get('/', async (req, res) => {
     try {
         const users = await User.find().select('-passwordHash');
@@ -32,7 +30,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ✅ POST création utilisateur
 router.post('/', async (req, res) => {
     try {
         const { surname, name, email, password, role } = req.body;
@@ -69,7 +66,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ PUT mise à jour des cours sélectionnés
 router.put('/:id/select-courses', async (req, res) => {
     try {
         const { selectedCourses } = req.body;
@@ -91,7 +87,6 @@ router.put('/:id/select-courses', async (req, res) => {
     }
 });
 
-// ✅ PUT mise à jour infos utilisateur
 router.put('/:id', async (req, res) => {
     const { name, surname, email, role } = req.body;
 
@@ -113,7 +108,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// ✅ DELETE utilisateur
 router.delete('/:id', async (req, res) => {
     try {
         const deletedUser = await User.findByIdAndDelete(req.params.id);
@@ -127,7 +121,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// ✅ PATCH append un cours sans écraser les autres
 router.patch('/:id/append-course', async (req, res) => {
     const userId = req.params.id;
     const { courseId } = req.body;

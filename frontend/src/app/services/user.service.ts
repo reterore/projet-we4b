@@ -22,27 +22,27 @@ export class UserService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔄 Obtenir tous les utilisateurs
+  // Obtenir tous les utilisateurs
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(this.apiUrl);
   }
 
-  // 👤 Obtenir un utilisateur par ID
+  // Obtenir un utilisateur par ID
   getUser(id: string): Observable<User> {
     return this.http.get<User>(`${this.apiUrl}/${id}`);
   }
 
-  // ✏️ Mettre à jour un utilisateur
+  // Mettre à jour un utilisateur
   updateUser(id: string, userData: Partial<User>): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/${id}`, userData);
   }
 
-  // 🗑️ Supprimer un utilisateur
+  //  Supprimer un utilisateur
   deleteUser(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  // ➕ Ajouter un cours à selectedCourses sans écraser les autres
+  // Ajouter un cours à selectedCourses sans écraser les autres
   appendCourseToUser(userId: string, courseId: string): Observable<any> {
     return this.http.patch(`${this.apiUrl}/${userId}/append-course`, { courseId });
   }

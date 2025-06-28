@@ -9,13 +9,11 @@ const ContentProgress = require('../models/contentProgress'); // ❗ manquant da
 
 const router = express.Router();
 
-// 📁 S'assurer que le dossier 'uploads' existe
 const uploadDir = path.join(__dirname, '../uploads');
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
 }
 
-// ⚙️ Configuration de Multer
 const storage = multer.diskStorage({
     destination: (req, file, cb) => cb(null, uploadDir),
     filename: (req, file, cb) => {
@@ -25,9 +23,6 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-/**
- * ➕ POST - Ajouter un contenu (texte ou fichier)
- */
 router.post('/', upload.single('file'), async (req, res) => {
     try {
         const { title, type, text, moduleId } = req.body;
@@ -56,9 +51,6 @@ router.post('/', upload.single('file'), async (req, res) => {
     }
 });
 
-/**
- * 📥 GET - Récupérer les contenus d’un module
- */
 router.get('/module/:moduleId', async (req, res) => {
     try {
         const contents = await Content.find({ moduleId: req.params.moduleId });
@@ -68,10 +60,6 @@ router.get('/module/:moduleId', async (req, res) => {
     }
 });
 
-/**
- * ❌ DELETE - Supprimer un contenu et ses progressions
- */
-// DELETE /api/contents/:id
 router.delete('/:id', async (req, res) => {
     const contentId = req.params.id;
 
@@ -98,10 +86,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-
-/**
- * ✏️ PUT - Modifier un contenu texte
- */
 router.put('/:id', async (req, res) => {
     try {
         const { title, text } = req.body;

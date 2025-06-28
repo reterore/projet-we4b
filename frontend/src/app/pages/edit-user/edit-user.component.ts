@@ -46,8 +46,7 @@ export class EditUserComponent implements OnInit {
   onSubmit(): void {
     if (this.userForm.invalid) return;
 
-    const updatedUser = this.userForm.getRawValue(); // getRawValue inclut les champs désactivés
-
+    const updatedUser = this.userForm.getRawValue();
     this.userService.updateUser(this.userId, updatedUser).subscribe({
       next: () => this.router.navigate(['/admin']),
       error: (err) => {

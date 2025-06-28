@@ -4,7 +4,6 @@ const Module = require('../models/Module');
 const Content = require('../models/Content');
 const ContentProgress = require('../models/ContentProgress');
 
-// ➕ Créer un module
 router.post('/', async (req, res) => {
     try {
         const { title, courseId } = req.body;
@@ -21,7 +20,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// 📥 Modules d’un cours
 router.get('/course/:courseId', async (req, res) => {
     try {
         const modules = await Module.find({ courseId: req.params.courseId });
@@ -32,7 +30,6 @@ router.get('/course/:courseId', async (req, res) => {
     }
 });
 
-// ✏️ Modifier un module
 router.put('/:id', async (req, res) => {
     try {
         const updated = await Module.findByIdAndUpdate(req.params.id, req.body, { new: true });
@@ -44,7 +41,6 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// ❌ Supprimer un module
 router.delete('/:id', async (req, res) => {
     try {
         const deleted = await Module.findByIdAndDelete(req.params.id);
@@ -56,7 +52,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-// 📊 Progression d’un étudiant pour un module
 router.get('/progress/:studentId/:moduleId', async (req, res) => {
     const { studentId, moduleId } = req.params;
 
@@ -79,12 +74,10 @@ router.get('/progress/:studentId/:moduleId', async (req, res) => {
     }
 });
 
-// ✅ Obtenir tous les modules avec leurs contenus
 router.get('/', async (req, res) => {
     try {
         const modules = await Module.find();
 
-        // Pour chaque module, on va chercher manuellement ses contents
         const enrichedModules = await Promise.all(
             modules.map(async mod => {
                 const contents = await Content.find({ moduleId: mod._id });

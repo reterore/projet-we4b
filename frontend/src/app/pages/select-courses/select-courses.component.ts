@@ -78,8 +78,4 @@ export class SelectCoursesComponent implements OnInit {
     }
     return `(Prof inconnu: ${teacher})`;
   }
-
-  ifProf(): boolean {
-    return this.isProf;
-  }
 }

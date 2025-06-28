@@ -21,10 +21,6 @@ export class ForumService {
 
   constructor(private http: HttpClient) {}
 
-  getForums(): Observable<Forum[]> {
-    return this.http.get<Forum[]>(this.apiUrl);
-  }
-
   createForum(forum: Forum): Observable<Forum> {
     return this.http.post<Forum>(this.apiUrl, forum);
   }

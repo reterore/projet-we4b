@@ -3,7 +3,6 @@ const mongoose = require('mongoose');
 const router = express.Router();
 const Forum = require('../models/forum');
 
-// ✅ Créer un forum
 router.post('/', async (req, res) => {
     try {
         const { title, courseId } = req.body;
@@ -30,7 +29,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ Récupérer tous les forums
 router.get('/', async (req, res) => {
     try {
         const forums = await Forum.find().populate('courseId');
@@ -41,7 +39,6 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ✅ Ajouter un message à un forum
 router.post('/:id/messages', async (req, res) => {
     const forumId = req.params.id;
 
@@ -71,7 +68,6 @@ router.post('/:id/messages', async (req, res) => {
     }
 });
 
-// ✅ Récupérer les forums liés à un cours
 router.get('/by-course/:courseId', async (req, res) => {
     const courseId = req.params.courseId;
 

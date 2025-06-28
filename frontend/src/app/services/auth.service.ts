@@ -10,35 +10,25 @@ export class AuthService {
 
   constructor(private http: HttpClient) {}
 
-  // 🔐 Envoi de la requête de login
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.API_URL}/login`, credentials);
   }
 
-  // 📝 Envoi de la requête d'inscription
   register(data: any): Observable<any> {
     return this.http.post(`${this.API_URL}/register`, data);
   }
 
-  // 💾 Sauvegarde les infos utilisateur dans le localStorage
   setSession(token: string, user: any): void {
     localStorage.setItem('token', token);
     localStorage.setItem('user', JSON.stringify(user));
     localStorage.setItem('role', user.role); // ← indispensable pour le guard
   }
 
-  // 🔓 Supprime la session utilisateur
   logout(): void {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
   }
 
-  // ✅ Vérifie si l'utilisateur est connecté
-  isLoggedIn(): boolean {
-    return !!localStorage.getItem('token');
-  }
-
-  // 🔍 Récupère les infos utilisateur
   getUser(): any | null {
     const user = localStorage.getItem('user');
     try {
@@ -49,20 +39,7 @@ export class AuthService {
     }
   }
 
-  // 🔍 Récupère le rôle de l'utilisateur
-  getUserRole(): string | null {
-    return this.getUser()?.role || null;
-  }
-
-  // 🔍 Récupère l'ID utilisateur
   getUserId(): string | null {
     return this.getUser()?._id || null;
   }
-
-  // 🔐 Récupère le token JWT
-  getToken(): string | null {
-    return localStorage.getItem('token');
-  }
-
-
 }

@@ -15,13 +15,11 @@ export class AuthGuard implements CanActivate {
     console.log('AuthGuard - token =', token);
     console.log('AuthGuard - role =', role);
 
-    // 1. Aucun token → redirection login
     if (!token) {
       console.warn('❌ Accès refusé : aucun token');
       return this.router.parseUrl('/login');
     }
 
-    // 2. Route vers /admin → check du rôle
     const isAdminRoute = route.routeConfig?.path === 'admin';
     if (isAdminRoute && role !== 'admin') {
       console.warn('❌ Accès refusé : rôle insuffisant pour /admin');

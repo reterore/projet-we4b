@@ -35,7 +35,7 @@ export class EditCourseComponent implements OnInit {
 
     this.courseService.getCourse(this.courseId).subscribe({
       next: course => {
-        this.courseTitle = course.title; // <- on stocke le titre
+        this.courseTitle = course.title;
         this.courseForm = this.fb.group({
           title: [course.title, Validators.required],
           description: [course.description, Validators.required],
@@ -51,7 +51,6 @@ export class EditCourseComponent implements OnInit {
 
   }
 
-  // ✅ Mise à jour des infos du cours
   onSubmit() {
     if (this.courseForm.invalid) return;
 
@@ -65,7 +64,7 @@ export class EditCourseComponent implements OnInit {
             details: {
               email: user.email,
               courseId: this.courseId,
-              title: this.courseForm.value.title, // <- titre modifié (form)
+              title: this.courseForm.value.title,
               updatedAt: new Date().toISOString()
             }
           }).subscribe({
@@ -81,7 +80,6 @@ export class EditCourseComponent implements OnInit {
   }
 
 
-  // ✅ Suppression avec log
   deleteCourse(): void {
     if (!confirm('❗ Voulez-vous vraiment supprimer ce cours ?')) return;
 
@@ -112,7 +110,6 @@ export class EditCourseComponent implements OnInit {
     });
   }
 
-  // ✅ Redirection contextuelle après update/suppression
   private redirectAfterAction(): void {
     if (this.userRole === 'admin') {
       this.router.navigate(['/admin'], { queryParams: { tab: 'courses' } });

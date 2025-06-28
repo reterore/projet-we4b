@@ -17,22 +17,14 @@ export class LogService {
 
   constructor(private http: HttpClient) {}
 
-  /**
-   * Envoie un log au backend
-   * @param entry Objet contenant userId, action, et éventuellement des détails
-   */
   sendLog(entry: LogEntry): Observable<LogEntry> {
     return this.http.post<LogEntry>(this.API_URL, entry).pipe(
       catchError(err => {
-        console.warn('⚠️ Erreur lors de l’envoi du log :', err);
-        return of({} as LogEntry); // Ne bloque pas l'app
+        console.warn('⚠Erreur lors de l’envoi du log :', err);
+        return of({} as LogEntry);
       })
     );
   }
-
-  /**
-   * Récupère tous les logs du backend
-   */
   getAllLogs(): Observable<LogEntry[]> {
     return this.http.get<LogEntry[]>(this.API_URL).pipe(
       catchError(err => {

@@ -64,7 +64,7 @@ export class StudentAssignmentsComponent implements OnInit {
     });
   }
 
-
+  // to go back after checking the grade
   goToDashboard(): void {
     this.router.navigate(['/dashboard']);
   }

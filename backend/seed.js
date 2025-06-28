@@ -10,12 +10,11 @@ mongoose.connect('mongodb://localhost:27017/we4b')
 
 (async () => {
     try {
-        // 👑 Création ou récupération de l'admin
         const existingAdmin = await User.findOne({ email: 'admin@we4b.com' });
         let admin;
 
         if (existingAdmin) {
-            console.log('👑 Admin déjà existant :', existingAdmin.email);
+            console.log('Admin déjà existant :', existingAdmin.email);
             admin = existingAdmin;
         } else {
             const passwordHash = await bcrypt.hash('admin123', 10);
@@ -27,10 +26,10 @@ mongoose.connect('mongodb://localhost:27017/we4b')
                 role: 'admin'
             });
             const savedAdmin = await admin.save();
-            console.log('👑 Nouvel admin inséré :', savedAdmin.email);
+            console.log('Nouvel admin inséré :', savedAdmin.email);
         }
 
-        // 📚 Création des cours si aucun n'existe
+        // Création des cours si aucun n'existe
         const courseCount = await Course.countDocuments();
         let mathCourse;
         if (courseCount > 0) {
@@ -45,7 +44,7 @@ mongoose.connect('mongodb://localhost:27017/we4b')
                 { title: 'Philosophie', description: 'Philosophie morale et politique', teacherId: admin._id },
             ];
             const insertedCourses = await Course.insertMany(courses);
-            console.log('📚 Cours insérés avec succès');
+            console.log('Cours insérés avec succès');
             mathCourse = insertedCourses.find(c => c.title === 'Mathématiques');
         }
 

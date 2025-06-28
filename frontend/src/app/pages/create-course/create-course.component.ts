@@ -57,7 +57,6 @@ export class CreateCourseComponent implements OnInit {
           return;
         }
 
-        // ✅ Log de création du cours
         const user = this.auth.getUser();
         if (user) {
           const logEntry: LogEntry = {
@@ -77,7 +76,6 @@ export class CreateCourseComponent implements OnInit {
           });
         }
 
-        // 🔗 Associer le cours au prof
         this.userService.appendCourseToUser(this.teacherId, createdCourse._id).subscribe({
           next: () => this.router.navigate(['/dashboard']),
           error: err => console.error('❌ Erreur ajout cours à l\'enseignant :', err)

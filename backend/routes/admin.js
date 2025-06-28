@@ -1,6 +1,5 @@
 const jwt = require('jsonwebtoken');
 
-// 🔐 Vérifie la présence et la validité du token
 function verifyToken(req, res, next) {
     const authHeader = req.headers.authorization;
 
@@ -20,7 +19,6 @@ function verifyToken(req, res, next) {
     }
 }
 
-// 🛡️ Vérifie si l'utilisateur est un admin
 function requireAdmin(req, res, next) {
     if (!req.user || req.user.role !== 'admin') {
         return res.status(403).json({ error: 'Accès interdit : admin uniquement' });

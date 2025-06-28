@@ -2,7 +2,7 @@ const Assignment = require('../models/Assignment');
 
 exports.getAssignmentsByStudent = async (req, res) => {
     const studentId = req.params.studentId;
-    console.log("📥 Requête pour devoirs de l'étudiant :", studentId);
+    console.log("Requête pour devoirs de l'étudiant :", studentId);
 
     try {
         const assignments = await Assignment.find()

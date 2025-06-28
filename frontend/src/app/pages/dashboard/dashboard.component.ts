@@ -32,11 +32,7 @@ export class DashboardComponent implements OnInit {
   courses: Course[] = [];
   isProf = false;
   allUsers: User[] = [];
-  allCourses: Course[] = [];
-  editingCourse: Course | null = null;
   title = '';
-  courseDescription = '';
-  courseProgressMap: Record<string, number> = {};
   modules: Module[] = [];
   courseContentCount: Record<string, number> = {};
   courseModuleCompletionMap: Record<string, number> = {};
@@ -91,10 +87,10 @@ export class DashboardComponent implements OnInit {
                             if (res && typeof res.isViewed === 'boolean') {
                               this.viewedMap[c._id] = res.isViewed;
                             } else {
-                              console.warn(`⚠️ Réponse inattendue pour contenu ${c._id} :`, res);
+                              console.warn(`⚠Réponse inattendue pour contenu ${c._id} :`, res);
                             }
                           })
-                          .catch(err => console.warn(`⚠️ Erreur vue pour contenu ${c._id} :`, err))
+                          .catch(err => console.warn(`erreur vue pour contenu ${c._id} :`, err))
                       )
                     ).then(() => {
                       const viewed = this.getViewedCount(m);
@@ -156,14 +152,10 @@ export class DashboardComponent implements OnInit {
     return this.courseContentCount[courseId] ?? 0;
   }
 
-  getCourseModuleCompletion(courseId?: string): number {
-    if (!courseId) return 0;
-    return this.courseModuleCompletionMap[courseId] ?? 0;
-  }
 
   getViewedCount(module: Module): number {
     if (!module?.contents?.length) return 0;
-    return module.contents.filter(c => !!this.viewedMap[c._id]).length;
+    return module.contents.filter(c => this.viewedMap[c._id]).length;
   }
 
   getCourseViewedCount(courseId: string): number {

@@ -14,7 +14,7 @@ const assignmentSchema = new mongoose.Schema({
     },
     moduleId: {
         type: Schema.Types.ObjectId,
-        ref: 'Module'   // 👈 référence au modèle Module
+        ref: 'Module'
     },
     courseId: {
         type: mongoose.Schema.Types.ObjectId,

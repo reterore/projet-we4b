@@ -5,9 +5,8 @@ const multer = require('multer');
 const path = require('path');
 const assignmentController = require('../controllers/assignmentController');
 
-// ✅ Créer un devoir (enseignant)
 router.post('/', async (req, res) => {
-    console.log('📥 Requête POST / reçue pour création devoir'); // ➕ ajoute ça
+    console.log('Requête POST / reçue pour création devoir'); // ➕ ajoute ça
     try {
         const { title, description, dueDate, courseId } = req.body;
         console.log({ title, description, dueDate, courseId }); // ➕ utile pour debugger
@@ -26,7 +25,6 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ✅ Récupérer les devoirs d’un cours
 router.get('/course/:courseId', async (req, res) => {
     try {
         const assignments = await Assignment.find({ courseId: req.params.courseId });
@@ -37,7 +35,6 @@ router.get('/course/:courseId', async (req, res) => {
     }
 });
 
-// Configuration de multer
 const storage = multer.diskStorage({
     destination: 'uploads/assignments/',
     filename: (req, file, cb) => {
@@ -54,7 +51,6 @@ router.post('/:assignmentId/submit', upload.single('file'), async (req, res) => 
         const assignment = await Assignment.findById(req.params.assignmentId);
         if (!assignment) return res.status(404).json({ error: 'Devoir introuvable' });
 
-        // 💥 Erreur potentielle ici : si déjà soumis, une réponse est renvoyée
         const alreadySubmitted = assignment.submissions.some(
             s => s.studentId.toString() === studentId
         );
@@ -63,7 +59,6 @@ router.post('/:assignmentId/submit', upload.single('file'), async (req, res) => 
             return res.status(400).json({ error: 'Déjà soumis par cet étudiant' });
         }
 
-        // ✅ Sinon on ajoute la soumission
         const newSubmission = {
             studentId,
             studentName,
@@ -85,7 +80,6 @@ router.post('/:assignmentId/submit', upload.single('file'), async (req, res) => 
 
         return res.status(201).json({ message: 'Soumission enregistrée', assignment });
     } catch (err) {
-        // ⚠️ Erreur ici : si une réponse a déjà été envoyée avant, celle-ci plantera
         if (!res.headersSent) {
             res.status(500).json({ error: 'Erreur serveur' });
         } else {
@@ -109,8 +103,6 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
-//noter
-
 router.post('/:assignmentId/grade/:submissionId', async (req, res) => {
     const { assignmentId, submissionId } = req.params;
     const { grade, comment } = req.body;
@@ -133,7 +125,6 @@ router.post('/:assignmentId/grade/:submissionId', async (req, res) => {
     }
 });
 
-//modifier le devoir
 router.put('/:assignmentId/submission/:submissionId', upload.single('file'), async (req, res) => {
     try {
         const { assignmentId, submissionId } = req.params;

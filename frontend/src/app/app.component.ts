@@ -12,8 +12,6 @@ export class AppComponent implements OnInit {
   isProf: boolean = false;
   title = 'frontend';
 
-  // Injection de LogService
-  //test
   constructor(
     private auth: AuthService,
     private router: Router,
@@ -41,8 +39,8 @@ export class AppComponent implements OnInit {
       };
 
       this.logService.sendLog(log).subscribe({
-        next: () => console.log('✅ Log de déconnexion enregistré.'),
-        error: err => console.warn('⚠️ Échec d’enregistrement du log :', err),
+        next: () => console.log('Log de déconnexion enregistré.'),
+        error: err => console.warn('Échec d’enregistrement du log :', err),
         complete: () => {
           this.auth.logout();
           this.router.navigate(['/login']);

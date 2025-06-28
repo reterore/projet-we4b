@@ -23,7 +23,7 @@ const logSchema = new mongoose.Schema({
         default: {}
     }
 }, {
-    timestamps: true // Ajoute createdAt et updatedAt automatiquement
+    timestamps: true
 });
 
 module.exports = mongoose.model('Log', logSchema);
