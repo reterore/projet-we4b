@@ -33,7 +33,7 @@ Le backend sera disponible sur http://localhost:3000.
 - Installez les dépendances Angular
 npm install
 
-- Lancez l’application Angular :
+- Lancez l’application Angular:
 ng serve
 
 L'application Angular sera disponible sur http://localhost:4200.
